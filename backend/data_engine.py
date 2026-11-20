@@ -500,9 +500,13 @@ def cargar_datos() -> None:
 
     grupos_por_juego = dict(tuple(grupos.groupby("gameId")))
 
-    def _procesar(df: pd.DataFrame) -> None:
+    tracking_por_juego: dict[int, Path] = {}
+
+    def _procesar(df: pd.DataFrame, path: Path | None = None) -> None:
         p, s = _agregar_tracking(df, plays)
         juegos = pd.unique(_normalizar_columnas(df)["gameId"])
+        if path is not None:
+            tracking_por_juego.update({int(g): path for g in juegos})
         sub = pd.concat([grupos_por_juego[g] for g in juegos if g in grupos_por_juego]) \
             if any(g in grupos_por_juego for g in juegos) else grupos.iloc[:0]
         t, a = _plantillas_tracking(df, sub, plantillas)
@@ -516,7 +520,7 @@ def cargar_datos() -> None:
     for path in tracking_paths:
         df = _leer(path, usecols=lambda c: _SINONIMOS.get(c, c) in TRACKING_COLS)
         if df is not None:
-            _procesar(df)
+            _procesar(df, path)
 
     if tiempos:
         plays = plays.merge(pd.concat(tiempos, ignore_index=True), on=["gameId", "playId"], how="left")
@@ -524,7 +528,9 @@ def cargar_datos() -> None:
         plays = plays.assign(t_lanzamiento=np.nan, frames_post_snap=np.nan)
 
     _DB.clear()
-    _DB.update(origen=origen, games=base["games"], plays=plays, pff=pff, plantillas=plantillas)
+    _DB.update(origen=origen, games=base["games"], plays=plays, pff=pff, plantillas=plantillas,
+               tracking_por_juego=tracking_por_juego,
+               tracking_memoria=_normalizar_columnas(base["tracking"]) if "tracking" in base else None)
     _construir_tablas(base["players"], pff, plays, parciales, separaciones, arranques)
     _preparar_similitud()
     log.info("Datos cargados (%s): %d juegos, %d jugadas, %d jugadores, %d archivos de tracking en %.1f s",
@@ -1047,3 +1053,151 @@ def referencias_liga() -> dict:
 def equipo_existe(team: str) -> bool:
     _requiere_datos()
     return team.upper() in _DB["equipos"].index
+
+
+def nombre_jugador(player_id: int) -> str | None:
+    _requiere_datos()
+    jug = _DB["jugadores"]
+    return str(jug.loc[player_id, "displayName"]) if player_id in jug.index else None
+
+
+# ============================================================ reto de 5 jugadas
+ORDINAL_ES = {1: "1ra", 2: "2da", 3: "3ra", 4: "4ta"}
+N_ESCENARIOS = 5
+
+
+def _segundos_reloj(reloj) -> int:
+    try:
+        m, s = str(reloj).split(":")[:2]
+        return int(m) * 60 + int(s)
+    except ValueError:
+        return 0
+
+
+def _texto_situacion(p: pd.Series, fan: str) -> str:
+    dif = int(p["score_diff"])
+    marcador = "el partido está empatado" if dif == 0 else (
+        f"{fan} gana por {dif}" if dif > 0 else f"{fan} pierde por {-dif}")
+    zona = "en la zona roja" if p["field_zone"] == "red_zone" else (
+        "en su propio campo" if p["field_zone"] == "own_territory" else
+        "en medio campo" if p["field_zone"] == "midfield" else "en territorio rival")
+    cuarto = "tiempo extra" if p["quarter"] == 5 else f"{int(p['quarter'])}º cuarto"
+    return (f"{ORDINAL_ES[int(p['down'])]} y {int(p['yardsToGo'])} {zona}, a {int(p['yards_to_goal'])} yardas "
+            f"de la zona de anotación. {cuarto}, {p['gameClock']} en el reloj; {marcador}.")
+
+
+def _roles_formacion(filas: pd.DataFrame) -> list[dict]:
+    """Convierte las posiciones al snap de una jugada en PlayerInput con roles numerados
+    (WR1, WR2, CB1, ...) de izquierda a derecha. La cobertura viene de PFF: rushers sin coverage,
+    defensores de cobertura con man/zone según el esquema real de la jugada."""
+    out: list[dict] = []
+    filas = filas.sort_values("y")
+    cuenta: dict[str, int] = {}
+    for _, f in filas.iterrows():
+        ofensiva = f["pff_role"] in ROLES_OFENSIVOS
+        g = grupo_alineacion(f["pff_positionLinedUp"]) or ("WR" if ofensiva else "LB")
+        if ofensiva:
+            base = f["pff_positionLinedUp"] if g == "OL" else g
+            cobertura = None
+        elif f["pff_role"] == "Pass Rush":
+            base = "DT" if g == "DL" else ("DE" if g == "EDGE" else "EDGE")  # un LB/DB que blitzea entra como EDGE
+            cobertura = None
+        else:
+            base = g if g in {"CB", "S"} else "LB"
+            tipo = f.get("pff_passCoverageType")
+            cobertura = "man" if tipo == "Man" else ("zone" if tipo == "Zone" else None)
+        numerar = base in {"WR", "SLOT", "TE", "RB", "DE", "DT", "EDGE", "LB", "CB", "S"}
+        cuenta[base] = cuenta.get(base, 0) + 1
+        out.append({
+            "player_id": int(f["nflId"]), "role": f"{base}{cuenta[base]}" if numerar else base,
+            "team": "offense" if ofensiva else "defense",
+            "x": round(float(np.clip(f["x"], 0, CAMPO_LARGO)), 2),
+            "y": round(float(np.clip(f["y"], 0, CAMPO_ANCHO)), 2),
+            "route": None, "coverage": cobertura,
+        })
+    return out
+
+
+def _formaciones_snap(gid: int, play_ids: list[int]) -> dict[int, list[dict]]:
+    """Posiciones reales al snap. Lee solo el archivo de tracking de ese partido (solo lectura)."""
+    path = _DB["tracking_por_juego"].get(gid)
+    if path is not None:
+        df = _leer(path, usecols=lambda c: _SINONIMOS.get(c, c) in TRACKING_COLS)
+        df = _normalizar_columnas(df) if df is not None else None
+    elif _DB.get("tracking_memoria") is not None:
+        df = _DB["tracking_memoria"]
+        df = df[df["gameId"] == gid]
+    else:
+        df = None
+    if df is None or df.empty:
+        return {}
+    df = df[df["playId"].isin(play_ids)]
+    snap = df[df["event"].isin(EVENTOS_SNAP)].groupby("playId")["frameId"].min().rename("f_snap")
+    en = df[df["nflId"].notna()].merge(snap.reset_index(), on="playId")
+    en = en[en["frameId"] == en["f_snap"]].assign(nflId=lambda d: d["nflId"].astype("int64"))
+    pff = _DB["pff"]
+    en = en.merge(pff[pff["gameId"] == gid][["playId", "nflId", "pff_role", "pff_positionLinedUp"]],
+                  on=["playId", "nflId"])
+    plays = _DB["plays"]
+    en = en.merge(plays[plays["gameId"] == gid][["playId", "pff_passCoverageType"]], on="playId", how="left")
+    return {int(pid): _roles_formacion(g) for pid, g in en.groupby("playId")}
+
+
+def get_escenarios_reto(game_id: str | None, team: str | None) -> dict:
+    """Las 5 jugadas más críticas de la ofensiva de `team` en un partido real, en orden cronológico,
+    con la formación real al snap. Sin game_id se usa el partido más reciente del equipo."""
+    _requiere_datos()
+    games, plays = _DB["games"], _DB["plays"]
+    t = _equipo_valido(team) if team else None
+    if game_id is not None:
+        if not str(game_id).isdigit():
+            raise ValueError("game_id debe ser numérico.")
+        g = games[games["gameId"] == int(game_id)]
+        if g.empty:
+            raise KeyError(f"Partido {game_id} no encontrado")
+        juego = g.iloc[0]
+        if t and t not in (juego["homeTeamAbbr"], juego["visitorTeamAbbr"]):
+            raise ValueError(f"{t} no jugó el partido {game_id}.")
+    else:
+        cand = games if not t else games[(games["homeTeamAbbr"] == t) | (games["visitorTeamAbbr"] == t)]
+        if cand.empty:
+            raise KeyError(f"No hay partidos de {t}")
+        juego = cand.sort_values(["week", "gameId"]).iloc[-1]
+    gid = int(juego["gameId"])
+    fan = t or str(juego["homeTeamAbbr"])
+    rival = str(juego["visitorTeamAbbr"] if juego["homeTeamAbbr"] == fan else juego["homeTeamAbbr"])
+
+    j = plays[(plays["gameId"] == gid) & (plays["possessionTeam"] == fan) & plays["down"].between(1, 4)].copy()
+    if j.empty:
+        raise ValueError(f"{fan} no tiene jugadas ofensivas registradas en el partido {gid}.")
+    # Criticidad: oportunidades tardías, zona roja, cuarto final y marcador cerrado.
+    j["criticidad"] = (2.0 * (j["down"] >= 3) + 1.5 * (j["down"] == 4) + 1.5 * (j["field_zone"] == "red_zone")
+                       + 1.0 * (j["quarter"] >= 4) + 1.0 * (j["score_diff"].abs() <= 8)
+                       + 0.5 * (j["yardsToGo"] <= 3))
+    j["t_restante"] = j["gameClock"].map(_segundos_reloj)
+    elegidas = j.sort_values(["criticidad", "quarter", "t_restante"], ascending=[False, False, True]).head(N_ESCENARIOS)
+    elegidas = elegidas.sort_values(["quarter", "t_restante"], ascending=[True, False])
+    formaciones = _formaciones_snap(gid, elegidas["playId"].tolist())
+
+    escenarios = []
+    for paso, (_, p) in enumerate(elegidas.iterrows(), start=1):
+        jugadores = formaciones.get(int(p["playId"]))
+        if not jugadores:
+            continue
+        texto = _texto_situacion(p, fan)
+        escenarios.append({
+            "step": paso,
+            "description": texto,
+            "scenario": {"down": int(p["down"]), "yards_to_go": int(p["yardsToGo"]), "field_zone": p["field_zone"],
+                         "score_diff": int(p["score_diff"]), "quarter": int(p["quarter"]),
+                         "clock": str(p["gameClock"]), "situation_text": texto},
+            "initial_players": jugadores,
+            # Lo que pasó en realidad: solo se revela en el veredicto.
+            "real": {"play_id": int(p["playId"]), "description": re.sub(r"^\(\d+:\d+\)\s*", "", str(p["playDescription"])),
+                     "play_result": int(p["playResult"]), "success": bool(p["success"] == 1)},
+        })
+    for paso, e in enumerate(escenarios, start=1):  # renumera si alguna jugada no tenía tracking
+        e["step"] = paso
+    if not escenarios:
+        raise ValueError(f"No hay tracking disponible para el partido {gid}.")
+    return {"game_id": str(gid), "fan_team": fan, "opponent": rival, "scenarios": escenarios}

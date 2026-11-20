@@ -202,6 +202,33 @@ class ChallengeScenario(_Base):
     yards_to_go: int
     field_zone: str
     score_diff: int = 0
+    # Contexto opcional del partido (GET /api/challenge)
+    quarter: int | None = None
+    clock: str | None = None
+    situation_text: str | None = None
+
+
+# GET /api/challenge: extensión pedida por el equipo, pendiente de agregarse a 02-api-contract.md.
+class ChallengeOption(_Base):
+    id: Literal["option_a", "option_b", "option_c"]
+    label: str
+    description: str
+
+
+class ChallengeStepScenario(_Base):
+    step: int
+    description: str
+    scenario: ChallengeScenario
+    initial_players: list[PlayerInput]
+    players: list[PlayerInput]  # mismo contenido que initial_players: es el nombre que usa el dashboard
+    options: list[ChallengeOption]
+
+
+class ChallengeScenariosResponse(_Base):
+    game_id: str
+    fan_team: str
+    opponent: str
+    scenarios: list[ChallengeStepScenario]
 
 
 class ChallengeRequest(_Base):
