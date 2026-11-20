@@ -1,61 +1,57 @@
 
-===== setup 2026-11-18 21:03:20 =====
-21:03:18 Sistema detectado: windows x64  |  Python del arranque: 3.13.14
-21:03:20     Creando proyecto en: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam
-21:03:20 MODO: instalación  |  versión del script: 2026-11-16  |  argumentos: (ninguno)
-21:03:20 SISTEMA: Windows-11-10.0.26300-SP0  |  detectado: windows x64  |  versión: 10.0.26300
-21:03:20 WINDOWS: build 26300  |  administrador: False
-21:03:20 PYTHON: 3.13.14 (C:\Users\JRA\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\python.exe)
-21:03:20 USUARIO: JRA  |  carpeta actual: D:\UNAM\Universidad\Hackathones\AmazonNFL\plantilla-hackathon
-21:03:20 PROYECTO: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam  |  largo de ruta: 56  |  espacios: False  |  no ASCII: False
-21:03:20 DISCO LIBRE: 102.3 GB
-21:03:20 PROXY: ninguno
-21:03:20 Proyecto: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam
-21:03:20 
+===== setup 2026-11-18 20:56:37 =====
+20:56:33 Sistema detectado: linux x64  |  Python del arranque: 3.14.7
+20:56:37     Creando proyecto en: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+20:56:37 MODO: instalación  |  versión del script: 2026-11-16  |  argumentos: (ninguno)
+20:56:37 SISTEMA: Linux-7.1.8-200.fc44.x86_64-x86_64-with-glibc2.43  |  detectado: linux x64  |  versión: #1 SMP PREEMPT_DYNAMIC Mon Aug 10 03:35:23 UTC 2026
+20:56:37 PYTHON: 3.14.7 (/usr/bin/python3)
+20:56:37 USUARIO: j  |  carpeta actual: /home/j/Documentos/Hackathones/AmazonNFL/plantilla-hackathon
+20:56:37 PROYECTO: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam  |  largo de ruta: 55  |  espacios: False  |  no ASCII: False
+20:56:37 DISCO LIBRE: 137.5 GB
+20:56:37 PROXY: ninguno
+20:56:37 Proyecto: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+20:56:37 
 [1/8] Preparando carpetas
-21:03:20     Reglas de Kiro instaladas en .kiro/steering/rules.md
-21:03:20 
+20:56:37     Reglas de Kiro instaladas en .kiro/steering/rules.md
+20:56:37 
 [2/8] Instalando uv 0.11.19
-21:03:20 descargando https://astral.sh/uv/0.11.19/install.ps1
-21:03:20 $ powershell -NoProfile -ExecutionPolicy Bypass -File D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.cache\downloads\uv-install.ps1
-21:03:24 downloading uv 0.11.19 (x86_64-pc-windows-msvc)
-installing to D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv
-  uv.exe
-  uvx.exe
-  uvw.exe
+20:56:37 descargando https://astral.sh/uv/0.11.19/install.sh
+20:56:38 $ sh /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.cache/downloads/uv-install.sh
+20:56:40 downloading uv 0.11.19 x86_64-unknown-linux-gnu
+installing to /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv
+  uv
+  uvx
 everything's installed!
-21:03:24     uv 0.11.19 instalado en .tools/uv
-21:03:24 
+20:56:40     uv 0.11.19 instalado en .tools/uv
+20:56:40 
 [3/8] Instalando Python 3.12.12 y creando .venv
-21:03:24 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv\uv.exe python install 3.12.12 --no-bin --no-registry
-21:03:29 Downloading cpython-3.12.12-windows-x86_64-none (download) (20.8MiB)
- Downloaded cpython-3.12.12-windows-x86_64-none (download)
-Installed Python 3.12.12 in 5.40s
- + cpython-3.12.12-windows-x86_64-none
-21:03:29     Python 3.12.12 disponible en .tools/python
-21:03:29 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv\uv.exe venv --python 3.12.12 D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv
-21:03:30 Using CPython 3.12.12
+20:56:40 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv python install 3.12.12 --no-bin --no-registry
+20:56:42 Downloading cpython-3.12.12-linux-x86_64-gnu (download) (32.3MiB)
+ Downloaded cpython-3.12.12-linux-x86_64-gnu (download)
+Installed Python 3.12.12 in 2.42s
+ + cpython-3.12.12-linux-x86_64-gnu
+20:56:42     Python 3.12.12 disponible en .tools/python
+20:56:42 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv venv --python 3.12.12 /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv
+20:56:42 Using CPython 3.12.12
 Creating virtual environment at: .venv
-Activate with: .venv\Scripts\activate
-21:03:30     .venv creado
-21:03:30 
+Activate with: source .venv/bin/activate
+20:56:42     .venv creado
+20:56:42 
 [4/8] Instalando dependencias de Python (una sola resolución, solo ruedas)
-21:03:30 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv\uv.exe pip install --python D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe --only-binary :all: --require-hashes -r D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\requirements.lock
-21:03:33 Resolved 57 packages in 566ms
-Downloading numpy (12.0MiB)
-Downloading pywin32 (6.6MiB)
+20:56:42 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv pip install --python /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python --only-binary :all: --require-hashes -r /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/requirements.lock
+20:56:46 Resolved 55 packages in 781ms
+Downloading cryptography (4.5MiB)
+Downloading numpy (15.3MiB)
 Downloading botocore (15.5MiB)
+Downloading pandas (12.1MiB)
 Downloading pydantic-core (1.9MiB)
-Downloading pandas (11.0MiB)
-Downloading cryptography (3.6MiB)
  Downloaded pydantic-core
  Downloaded cryptography
- Downloaded pywin32
  Downloaded numpy
  Downloaded pandas
  Downloaded botocore
-Prepared 57 packages in 1.85s
-Installed 57 packages in 1.04s
+Prepared 55 packages in 2.05s
+Installed 55 packages in 88ms
  + annotated-types==0.8.0
  + anyio==4.16.0
  + attrs==26.1.0
@@ -64,7 +60,6 @@ Installed 57 packages in 1.04s
  + certifi==2026.10.23
  + cffi==2.1.1
  + click==8.5.1
- + colorama==0.4.6
  + cryptography==50.0.2
  + docstring-parser==0.18.0
  + fastapi==0.115.14
@@ -97,7 +92,6 @@ Installed 57 packages in 1.04s
  + python-dotenv==1.2.4
  + python-multipart==0.0.33
  + pytz==2026.6
- + pywin32==312
  + pyyaml==6.0.3
  + referencing==0.37.0
  + rpds-py==2026.9.1
@@ -113,77 +107,76 @@ Installed 57 packages in 1.04s
  + uvicorn==0.34.3
  + watchdog==6.0.0
  + wrapt==2.5.2
-21:03:33     Dependencias de Python instaladas desde el archivo de bloqueo
-21:03:33 
+20:56:46     Dependencias de Python instaladas desde el archivo de bloqueo
+20:56:46 
 [5/8] Descargando Node 22.23.1 portátil y verificando SHA-256
-21:03:33 descargando https://nodejs.org/dist/v22.23.1/SHASUMS256.txt
-21:03:34 descargando https://nodejs.org/dist/v22.23.1/node-v22.23.1-win-x64.zip
-21:03:35     Suma SHA-256 verificada
-21:03:37     Node v22.23.1 instalado en .tools/node
-21:03:37 
+20:56:46 descargando https://nodejs.org/dist/v22.23.1/SHASUMS256.txt
+20:56:46 descargando https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-x64.tar.xz
+20:56:47     Suma SHA-256 verificada
+20:56:55     Node v22.23.1 instalado en .tools/node
+20:56:55 
 [6/8] Instalando dependencias del frontend (npm ci)
-21:03:37 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\node\npm.cmd ci --ignore-scripts
-21:03:46 
-added 173 packages in 8s
-21:03:46     Dependencias del frontend instaladas con npm ci --ignore-scripts
-21:03:46 
+20:56:55 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/node/bin/npm ci --ignore-scripts
+20:57:00 
+added 173 packages in 5s
+20:57:00     Dependencias del frontend instaladas con npm ci --ignore-scripts
+20:57:00 
 [7/8] Comprobando todo
-21:03:48 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv\uv.exe pip check --python D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe
-21:03:48 Checked 57 packages in 7ms
+20:57:01 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv pip check --python /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python
+20:57:01 Checked 55 packages in 2ms
 All installed packages are compatible
-21:03:48 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
-21:03:55 
-21:03:55   Pieza              Esperado                            Encontrado      Estado
-21:03:55   -----------------  ----------------------------------  --------------  ------
-21:03:55   uv                 0.11.19                             0.11.19         OK    
-21:03:55   Python (.venv)     3.12.12                             3.12.12         OK    
-21:03:55   Node               v22.23.1                            v22.23.1        OK    
-21:03:55   npm                10.x                                10.9.8          OK    
-21:03:55   Paquetes Python    9 fijos                             9 coinciden     OK    
-21:03:55   Paquetes npm       12 fijos                            12 coinciden    OK    
-21:03:55   pip check          sin conflictos                      sin conflictos  OK    
-21:03:55   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
-21:03:55 
+20:57:01 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
+20:57:07 
+20:57:07   Pieza              Esperado                            Encontrado      Estado
+20:57:07   -----------------  ----------------------------------  --------------  ------
+20:57:07   uv                 0.11.19                             0.11.19         OK    
+20:57:07   Python (.venv)     3.12.12                             3.12.12         OK    
+20:57:07   Node               v22.23.1                            v22.23.1        OK    
+20:57:07   npm                10.x                                10.9.8          OK    
+20:57:07   Paquetes Python    9 fijos                             9 coinciden     OK    
+20:57:07   Paquetes npm       12 fijos                            12 coinciden    OK    
+20:57:07   pip check          sin conflictos                      sin conflictos  OK    
+20:57:07   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
+20:57:07 
 [8/8] Resultado
-21:03:55 
+20:57:07 
 TODO OK. Tu proyecto está en:
-  D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam
-Trabaja dentro de esa carpeta. Cuando termines, corre:  .\.hackathon\setup.cmd --entregar
-21:03:55 FIN con código de salida 0
+  /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+Trabaja dentro de esa carpeta. Cuando termines, corre:  sh .hackathon/setup.sh --entregar
+20:57:07 FIN con código de salida 0
 
-===== setup 2026-11-19 20:30:45 =====
-20:30:45 Sistema detectado: windows x64  |  Python del arranque: 3.12.12
-20:30:45 MODO: check  |  versión del script: 2026-11-16  |  argumentos: --check
-20:30:45 SISTEMA: Windows-11-10.0.26300-SP0  |  detectado: windows x64  |  versión: 10.0.26300
-20:30:45 WINDOWS: build 26300  |  administrador: False
-20:30:45 PYTHON: 3.12.12 (D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe)
-20:30:45 USUARIO: JRA  |  carpeta actual: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam
-20:30:45 PROYECTO: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam  |  largo de ruta: 56  |  espacios: False  |  no ASCII: False
-20:30:45 DISCO LIBRE: 101.9 GB
-20:30:45 PROXY: ninguno
-20:30:45 Proyecto: D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam
-20:30:45 
+===== setup 2026-11-20 11:02:45 =====
+11:02:45 Sistema detectado: linux x64  |  Python del arranque: 3.12.12
+11:02:45 MODO: check  |  versión del script: 2026-11-16  |  argumentos: --check
+11:02:45 SISTEMA: Linux-7.1.8-200.fc44.x86_64-x86_64-with-glibc2.43  |  detectado: linux x64  |  versión: #1 SMP PREEMPT_DYNAMIC Mon Aug 10 03:35:23 UTC 2026
+11:02:45 PYTHON: 3.12.12 (/home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python)
+11:02:45 USUARIO: j  |  carpeta actual: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:02:45 PROYECTO: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam  |  largo de ruta: 55  |  espacios: False  |  no ASCII: False
+11:02:45 DISCO LIBRE: 132.8 GB
+11:02:45 PROXY: ninguno
+11:02:45 Proyecto: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:02:45 
 Validando (no se descarga ni instala nada)...
-20:30:47 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.hackathon\.tools\uv\uv.exe pip check --python D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe
-20:30:47 Checked 57 packages in 4ms
+11:02:46 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv pip check --python /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python
+11:02:46 Checked 55 packages in 12ms
 All installed packages are compatible
-20:30:47 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
-20:30:50 
-20:30:50   Pieza              Esperado                            Encontrado      Estado
-20:30:50   -----------------  ----------------------------------  --------------  ------
-20:30:50   uv                 0.11.19                             0.11.19         OK    
-20:30:50   Python (.venv)     3.12.12                             3.12.12         OK    
-20:30:50   Node               v22.23.1                            v22.23.1        OK    
-20:30:50   npm                10.x                                10.9.8          OK    
-20:30:50   Paquetes Python    9 fijos                             9 coinciden     OK    
-20:30:50   Paquetes npm       12 fijos                            12 coinciden    OK    
-20:30:50   pip check          sin conflictos                      sin conflictos  OK    
-20:30:50   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
-20:30:50 
+11:02:46 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
+11:02:49 
+11:02:49   Pieza              Esperado                            Encontrado      Estado
+11:02:49   -----------------  ----------------------------------  --------------  ------
+11:02:49   uv                 0.11.19                             0.11.19         OK    
+11:02:49   Python (.venv)     3.12.12                             3.12.12         OK    
+11:02:49   Node               v22.23.1                            v22.23.1        OK    
+11:02:49   npm                10.x                                10.9.8          OK    
+11:02:49   Paquetes Python    9 fijos                             9 coinciden     OK    
+11:02:49   Paquetes npm       12 fijos                            12 coinciden    OK    
+11:02:49   pip check          sin conflictos                      sin conflictos  OK    
+11:02:49   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
+11:02:49 
 Revisando desviaciones del stack...
-20:30:50 $ D:\UNAM\Universidad\Hackathones\AmazonNFL\hackathon-unam\.venv\Scripts\python.exe -c import backend.main as m;assert hasattr(m,'app'), 'APP';assert any(getattr(r,'path','')=='/health' for r in m.app.routes), 'HEALTH'
-20:30:51 
-20:30:51     El proyecto sigue el stack del evento
-20:30:51 
+11:02:49 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import backend.main as m;assert hasattr(m,'app'), 'APP';assert any(getattr(r,'path','')=='/health' for r in m.app.routes), 'HEALTH'
+11:02:50 
+11:02:50     El proyecto sigue el stack del evento
+11:02:50 
 RESULTADO: TODO OK, puedes entregar.
-20:30:51 FIN con código de salida 0
+11:02:50 FIN con código de salida 0
