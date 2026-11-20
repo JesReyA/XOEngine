@@ -180,3 +180,75 @@ Revisando desviaciones del stack...
 11:02:50 
 RESULTADO: TODO OK, puedes entregar.
 11:02:50 FIN con código de salida 0
+
+===== setup 2026-11-20 11:23:25 =====
+11:23:25 Sistema detectado: linux x64  |  Python del arranque: 3.12.12
+11:23:25 MODO: check  |  versión del script: 2026-11-16  |  argumentos: --check
+11:23:25 SISTEMA: Linux-7.1.8-200.fc44.x86_64-x86_64-with-glibc2.43  |  detectado: linux x64  |  versión: #1 SMP PREEMPT_DYNAMIC Mon Aug 10 03:35:23 UTC 2026
+11:23:25 PYTHON: 3.12.12 (/home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python)
+11:23:25 USUARIO: j  |  carpeta actual: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:23:25 PROYECTO: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam  |  largo de ruta: 55  |  espacios: False  |  no ASCII: False
+11:23:25 DISCO LIBRE: 132.8 GB
+11:23:25 PROXY: ninguno
+11:23:25 Proyecto: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:23:25 
+Validando (no se descarga ni instala nada)...
+11:23:26 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv pip check --python /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python
+11:23:26 Checked 55 packages in 14ms
+All installed packages are compatible
+11:23:26 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
+11:23:29 
+11:23:29   Pieza              Esperado                            Encontrado      Estado
+11:23:29   -----------------  ----------------------------------  --------------  ------
+11:23:29   uv                 0.11.19                             0.11.19         OK    
+11:23:29   Python (.venv)     3.12.12                             3.12.12         OK    
+11:23:29   Node               v22.23.1                            v22.23.1        OK    
+11:23:29   npm                10.x                                10.9.8          OK    
+11:23:29   Paquetes Python    9 fijos                             9 coinciden     OK    
+11:23:29   Paquetes npm       12 fijos                            12 coinciden    OK    
+11:23:29   pip check          sin conflictos                      sin conflictos  OK    
+11:23:29   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
+11:23:29 
+Revisando desviaciones del stack...
+11:23:30 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import backend.main as m;assert hasattr(m,'app'), 'APP';assert any(getattr(r,'path','')=='/health' for r in m.app.routes), 'HEALTH'
+11:23:31 
+11:23:31     El proyecto sigue el stack del evento
+11:23:31 
+RESULTADO: TODO OK, puedes entregar.
+11:23:31 FIN con código de salida 0
+
+===== setup 2026-11-20 11:58:15 =====
+11:58:15 Sistema detectado: linux x64  |  Python del arranque: 3.12.12
+11:58:15 MODO: check  |  versión del script: 2026-11-16  |  argumentos: --check
+11:58:15 SISTEMA: Linux-7.1.8-200.fc44.x86_64-x86_64-with-glibc2.43  |  detectado: linux x64  |  versión: #1 SMP PREEMPT_DYNAMIC Mon Aug 10 03:35:23 UTC 2026
+11:58:15 PYTHON: 3.12.12 (/home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python)
+11:58:15 USUARIO: j  |  carpeta actual: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:58:15 PROYECTO: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam  |  largo de ruta: 55  |  espacios: False  |  no ASCII: False
+11:58:15 DISCO LIBRE: 132.7 GB
+11:58:15 PROXY: ninguno
+11:58:15 Proyecto: /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam
+11:58:15 
+Validando (no se descarga ni instala nada)...
+11:58:16 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.hackathon/.tools/uv/uv pip check --python /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python
+11:58:16 Checked 55 packages in 2ms
+All installed packages are compatible
+11:58:16 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import pandas, numpy, fastapi, uvicorn, pydantic, strands, boto3, httpx
+11:58:19 
+11:58:19   Pieza              Esperado                            Encontrado      Estado
+11:58:19   -----------------  ----------------------------------  --------------  ------
+11:58:19   uv                 0.11.19                             0.11.19         OK    
+11:58:19   Python (.venv)     3.12.12                             3.12.12         OK    
+11:58:19   Node               v22.23.1                            v22.23.1        OK    
+11:58:19   npm                10.x                                10.9.8          OK    
+11:58:19   Paquetes Python    9 fijos                             9 coinciden     OK    
+11:58:19   Paquetes npm       12 fijos                            12 coinciden    OK    
+11:58:19   pip check          sin conflictos                      sin conflictos  OK    
+11:58:19   Importar paquetes  pandas, fastapi, pydantic, strands  importan        OK    
+11:58:19 
+Revisando desviaciones del stack...
+11:58:19 $ /home/j/Documentos/Hackathones/AmazonNFL/hackathon-unam/.venv/bin/python -c import backend.main as m;assert hasattr(m,'app'), 'APP';assert any(getattr(r,'path','')=='/health' for r in m.app.routes), 'HEALTH'
+11:58:20 
+11:58:20     El proyecto sigue el stack del evento
+11:58:20 
+RESULTADO: TODO OK, puedes entregar.
+11:58:20 FIN con código de salida 0

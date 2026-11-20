@@ -37,13 +37,23 @@ COLUMN_MAP = {
 }
 _SINONIMOS = {alias: canon for canon, aliases in COLUMN_MAP.items() for alias in aliases}
 
-TRACKING_COLS = ["gameId", "playId", "nflId", "frameId", "team", "x", "y", "s", "a", "o", "dir", "event"]
+TRACKING_COLS = ["gameId", "playId", "nflId", "frameId", "team", "playDirection", "x", "y", "s", "a", "o", "dir",
+                 "event"]
 TRACKING_OPCIONALES = ["s", "a", "o", "dir"]
 
 # Umbrales de limpieza: arriba de esto son lecturas erróneas del sensor.
 MAX_SPEED_VALIDA = 12.5  # yd/s (~25.6 mph)
 MAX_ACCEL_VALIDA = 15.0  # yd/s²
 EVENTOS_PASE = {"pass_forward", "autoevent_passforward"}
+EVENTOS_SNAP = {"ball_snap", "autoevent_ballsnap"}
+EVENTOS_FIN_QB = EVENTOS_PASE | {"qb_sack", "qb_strip_sack"}
+CAMPO_LARGO, CAMPO_ANCHO = 120.0, 53.3
+
+# Grupos de alineación usados para las trayectorias medias por rol (plantillas).
+GRUPOS = ["QB", "OL", "RB", "TE", "WR", "SLOT", "DL", "EDGE", "LB", "CB", "S"]
+GRUPO_IDX = {g: i for i, g in enumerate(GRUPOS)}
+FRAMES_PLANTILLA = 50  # 5 s a 10 Hz desde el snap
+FRAMES_ARRANQUE = 10   # primer segundo tras el snap: aceleración de arranque
 ROLES_OFENSIVOS = {"Pass", "Pass Block", "Pass Route"}
 POSICIONES_OL = {"C", "G", "T"}
 MIN_JUGADAS = 30  # mínimo de jugadas para entrar en rankings y percentiles
@@ -190,6 +200,31 @@ def _zona_alineacion(pos) -> str | None:
     return "interior_line"
 
 
+def grupo_alineacion(pos) -> str | None:
+    """pff_positionLinedUp -> grupo de GRUPOS."""
+    if not isinstance(pos, str):
+        return None
+    if pos == "QB":
+        return "QB"
+    if pos in {"C", "LG", "RG", "LT", "RT"}:
+        return "OL"
+    if pos.startswith(("HB", "FB")):
+        return "RB"
+    if pos.startswith("TE"):
+        return "TE"
+    if "WR" in pos:
+        return "SLOT" if pos.startswith("S") else "WR"
+    if pos.startswith("SCB") or pos in {"LCB", "RCB"}:
+        return "CB"
+    if pos.startswith(("FS", "SS")):
+        return "S"
+    if pos in {"LE", "RE", "LEO", "REO", "LOLB", "ROLB"}:
+        return "EDGE"
+    if pos in {"DLT", "DRT", "NT", "NLT", "NRT"}:
+        return "DL"
+    return "LB"
+
+
 # ============================================================ tracking
 def _agregar_tracking(df: pd.DataFrame, plays: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Resume un bloque de tracking.
@@ -235,6 +270,106 @@ def _agregar_tracking(df: pd.DataFrame, plays: pd.DataFrame) -> tuple[pd.DataFra
     )
     separacion["nflId"] = separacion["nflId"].astype("int64")
     return parcial, separacion
+
+
+def _plantillas_tracking(df: pd.DataFrame, grupos: pd.DataFrame, plantillas: np.ndarray) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Escribe en `plantillas` (n_jugadas, n_grupos, FRAMES_PLANTILLA, 2) el desplazamiento medio
+    por grupo desde el snap, con la dirección normalizada: +x = hacia la meta rival,
+    +y = hacia la banda del lado donde se alineó el jugador.
+
+    Devuelve:
+    - tiempos por jugada: frames del snap al pase/sack y del snap al final del tracking.
+    - arranque por jugador: suma y conteo de la aceleración en el primer segundo tras el snap.
+    """
+    df = _normalizar_columnas(df)
+    vacio = (pd.DataFrame(columns=["gameId", "playId", "t_lanzamiento", "frames_post_snap"]),
+             pd.DataFrame(columns=["nflId", "la_sum", "la_n"]))
+    if "event" not in df.columns:
+        return vacio
+    llaves = ["gameId", "playId"]
+    snap = df[df["event"].isin(EVENTOS_SNAP)].groupby(llaves)["frameId"].min().rename("f_snap")
+    if snap.empty:
+        return vacio
+
+    fin = df[df["event"].isin(EVENTOS_FIN_QB)].groupby(llaves)["frameId"].min().rename("f_fin")
+    ultimo = df.groupby(llaves)["frameId"].max().rename("f_ultimo")
+    t = pd.concat([snap, fin, ultimo], axis=1).dropna(subset=["f_snap"])
+    tiempos = pd.DataFrame({"t_lanzamiento": t["f_fin"] - t["f_snap"],
+                            "frames_post_snap": t["f_ultimo"] - t["f_snap"]}).reset_index()
+
+    def _llave(frame: pd.DataFrame, con_jugador: bool = False) -> np.ndarray:
+        # gameId (10 dígitos) · 10^4 + playId (< 10^4), y · 10^5 + nflId (< 10^5): cabe en int64.
+        k = frame["gameId"].to_numpy(dtype=np.int64) * 10_000 + frame["playId"].to_numpy(dtype=np.int64)
+        return k * 100_000 + frame["nflId"].to_numpy(dtype=np.int64) if con_jugador else k
+
+    snap_idx = pd.Index(_llave(snap.reset_index()))
+    snap_val = snap.to_numpy(dtype=float)
+
+    # Solo las columnas necesarias: los cruces con columnas de texto son lo más caro.
+    d = pd.DataFrame({
+        "gameId": df["gameId"], "playId": df["playId"], "nflId": df["nflId"], "frameId": df["frameId"],
+        "izq": df["playDirection"].eq("left") if "playDirection" in df.columns else False,
+        "x": df["x"], "y": df["y"], "a": df["a"] if "a" in df.columns else np.nan,
+    })
+    pos_snap = snap_idx.get_indexer(_llave(d))
+    d["k"] = d["frameId"].to_numpy(dtype=float) - np.where(pos_snap >= 0, snap_val[pos_snap], np.nan)
+    d = d[(d["k"] >= 0) & (d["k"] < FRAMES_PLANTILLA)]
+    d["k"] = d["k"].astype(np.int64)
+    d["xn"] = np.where(d["izq"], CAMPO_LARGO - d["x"], d["x"])
+    d["yn"] = np.where(d["izq"], CAMPO_ANCHO - d["y"], d["y"])
+
+    es_balon = d["nflId"].isna().to_numpy()
+    k_arr = d["k"].to_numpy()
+    xn, yn = d["xn"].to_numpy(dtype=float), d["yn"].to_numpy(dtype=float)
+    llave_jugada = _llave(d)
+
+    # y del balón al snap, por jugada.
+    b = es_balon & (k_arr == 0)
+    idx_b = pd.Index(llave_jugada[b])
+    idx_b = idx_b[~idx_b.duplicated()]
+    yb_val = pd.Series(yn[b], index=llave_jugada[b]).groupby(level=0).first().reindex(idx_b).to_numpy()
+
+    j = ~es_balon
+    jug = d[j]
+    kj = k_arr[j]
+    llave_j = _llave(jug.assign(nflId=jug["nflId"].astype("int64")), con_jugador=True)
+    xj, yj = xn[j], yn[j]
+
+    # Posición al snap (k = 0) de cada jugador en cada jugada.
+    en_snap = kj == 0
+    p0 = pd.Index(llave_j[en_snap]).get_indexer(llave_j)
+    pos_b = idx_b.get_indexer(llave_jugada[j])
+    pos_g = pd.Index(_llave(grupos, con_jugador=True)).get_indexer(llave_j)
+    ok = (p0 >= 0) & (pos_g >= 0)
+    x0, y0 = xj[en_snap][p0[ok]], yj[en_snap][p0[ok]]
+    # Sin filas del balón (p. ej. dataset sintético) se usa el centro del campo.
+    yb = np.where(pos_b[ok] >= 0, yb_val[np.maximum(pos_b[ok], 0)], np.nan) if yb_val.size \
+        else np.full(int(ok.sum()), np.nan)
+    lado = np.sign(y0 - np.where(np.isnan(yb), CAMPO_ANCHO / 2, yb))
+    lado[lado == 0] = 1
+    dx, dy = xj[ok] - x0, (yj[ok] - y0) * lado
+
+    # Media por (jugada, grupo, frame) con un solo np.unique + bincount.
+    row = grupos["row_id"].to_numpy(dtype=np.int64)[pos_g[ok]]
+    gi = grupos["grupo_idx"].to_numpy(dtype=np.int64)[pos_g[ok]]
+    kk = kj[ok]
+    n_g = len(GRUPOS)
+    lineal = (row * n_g + gi) * FRAMES_PLANTILLA + kk
+    if lineal.size:
+        u, inv = np.unique(lineal, return_inverse=True)
+        n = np.bincount(inv)
+        mx, my = np.bincount(inv, weights=dx) / n, np.bincount(inv, weights=dy) / n
+        r_u, resto = np.divmod(u, n_g * FRAMES_PLANTILLA)
+        g_u, k_u = np.divmod(resto, FRAMES_PLANTILLA)
+        plantillas[r_u, g_u, k_u, 0] = mx
+        plantillas[r_u, g_u, k_u, 1] = my
+
+    ventana = (kj >= 1) & (kj <= FRAMES_ARRANQUE)
+    a = jug["a"].to_numpy(dtype=float)[ventana]
+    a = np.where(a <= MAX_ACCEL_VALIDA, a, np.nan)
+    arranque = (pd.DataFrame({"nflId": jug["nflId"].to_numpy()[ventana].astype("int64"), "a": a})
+                .groupby("nflId")["a"].agg(la_sum="sum", la_n="count").reset_index())
+    return tiempos, arranque
 
 
 # ============================================================ dataset sintético
@@ -352,22 +487,45 @@ def cargar_datos() -> None:
 
     plays = _preparar_plays(base["plays"], base["games"], base["pff"])
 
-    parciales, separaciones = [], []
-    bloques = [base["tracking"]] if "tracking" in base else []
-    for bloque in bloques:
-        p, s = _agregar_tracking(bloque, plays)
+    # Grupo de alineación de cada jugador en cada jugada, con el índice de fila de la jugada.
+    pff = base["pff"]
+    grupos = pff[["gameId", "playId", "nflId"]].assign(
+        grupo_idx=pff["pff_positionLinedUp"].map(grupo_alineacion).map(GRUPO_IDX))
+    grupos = grupos.dropna(subset=["grupo_idx"]).merge(plays[["gameId", "playId", "row_id"]],
+                                                       on=["gameId", "playId"])
+    grupos["grupo_idx"] = grupos["grupo_idx"].astype("int64")
+    plantillas = np.full((len(plays), len(GRUPOS), FRAMES_PLANTILLA, 2), np.nan, dtype=np.float32)
+
+    parciales, separaciones, tiempos, arranques = [], [], [], []
+
+    grupos_por_juego = dict(tuple(grupos.groupby("gameId")))
+
+    def _procesar(df: pd.DataFrame) -> None:
+        p, s = _agregar_tracking(df, plays)
+        juegos = pd.unique(_normalizar_columnas(df)["gameId"])
+        sub = pd.concat([grupos_por_juego[g] for g in juegos if g in grupos_por_juego]) \
+            if any(g in grupos_por_juego for g in juegos) else grupos.iloc[:0]
+        t, a = _plantillas_tracking(df, sub, plantillas)
         parciales.append(p)
         separaciones.append(s)
+        tiempos.append(t)
+        arranques.append(a)
+
+    if "tracking" in base:
+        _procesar(base["tracking"])
     for path in tracking_paths:
         df = _leer(path, usecols=lambda c: _SINONIMOS.get(c, c) in TRACKING_COLS)
         if df is not None:
-            p, s = _agregar_tracking(df, plays)
-            parciales.append(p)
-            separaciones.append(s)
+            _procesar(df)
+
+    if tiempos:
+        plays = plays.merge(pd.concat(tiempos, ignore_index=True), on=["gameId", "playId"], how="left")
+    else:
+        plays = plays.assign(t_lanzamiento=np.nan, frames_post_snap=np.nan)
 
     _DB.clear()
-    _DB.update(origen=origen, games=base["games"], plays=plays, pff=base["pff"])
-    _construir_tablas(base["players"], base["pff"], plays, parciales, separaciones)
+    _DB.update(origen=origen, games=base["games"], plays=plays, pff=pff, plantillas=plantillas)
+    _construir_tablas(base["players"], pff, plays, parciales, separaciones, arranques)
     _preparar_similitud()
     log.info("Datos cargados (%s): %d juegos, %d jugadas, %d jugadores, %d archivos de tracking en %.1f s",
              origen, plays["gameId"].nunique(), len(plays), len(_DB["jugadores"]), len(tracking_paths),
@@ -409,10 +567,11 @@ def _preparar_plays(plays: pd.DataFrame, games: pd.DataFrame, pff: pd.DataFrame)
     p["rushers"] = p["rushers"].fillna(0)
     p["pressure"] = p["pressure"].fillna(0)
     p["blitz"] = (p["rushers"] >= 5).astype(float)
+    p["row_id"] = np.arange(len(p), dtype=np.int64)  # fila de la jugada en el arreglo de plantillas
     return p
 
 
-def _construir_tablas(players, pff, plays, parciales, separaciones) -> None:
+def _construir_tablas(players, pff, plays, parciales, separaciones, arranques) -> None:
     # --- tracking por jugador
     if parciales:
         par = pd.concat(parciales, ignore_index=True)
@@ -439,6 +598,7 @@ def _construir_tablas(players, pff, plays, parciales, separaciones) -> None:
         on=["gameId", "playId"])
     part["team"] = np.where(part["pff_role"].isin(ROLES_OFENSIVOS), part["possessionTeam"], part["defensiveTeam"])
     part["zona"] = part["pff_positionLinedUp"].map(_zona_alineacion)
+    part["grupo"] = part["pff_positionLinedUp"].map(grupo_alineacion)
     part = part.merge(sep, on=["gameId", "playId", "nflId"], how="left")
     # Separación = distancia del receptor al defensor más cercano al salir el pase. Solo aplica a rutas.
     part.loc[part["pff_role"] != "Pass Route", "separacion"] = np.nan
@@ -449,11 +609,17 @@ def _construir_tablas(players, pff, plays, parciales, separaciones) -> None:
         team=("team", _modo),
         role=("pff_role", _modo),
         avg_separation=("separacion", "mean"),
+        grupo=("grupo", _modo),
     )
     defensivas = pff.groupby("nflId")[[c for c in ("pff_sack", "pff_hurry", "pff_hit") if c in pff.columns]].sum()
+    if arranques:
+        arr = pd.concat(arranques, ignore_index=True).groupby("nflId")[["la_sum", "la_n"]].sum()
+        launch = (arr["la_sum"] / arr["la_n"].replace(0, np.nan)).rename("launch_accel")
+    else:
+        launch = pd.Series(dtype=float, name="launch_accel")
 
     jug = players.set_index("nflId")[["displayName", "officialPosition"]].join(resumen, how="inner")
-    jug = jug.join(trk.astype(float), how="left").join(defensivas, how="left")
+    jug = jug.join(trk.astype(float), how="left").join(defensivas, how="left").join(launch, how="left")
     for c in ("pff_sack", "pff_hurry", "pff_hit"):
         jug[c] = jug[c].fillna(0) if c in jug.columns else 0.0
     # El dataset sintético es pequeño: ahí basta con haber jugado.
@@ -467,8 +633,19 @@ def _construir_tablas(players, pff, plays, parciales, separaciones) -> None:
     _DB["jugadores"] = jug
 
     # --- liga
-    rutas = part[part["pff_role"] == "Pass Route"]["separacion"]
-    _DB["liga"] = {"avg_speed": liga_s, "avg_acceleration": liga_a, "avg_separation": rutas.mean()}
+    rutas = part[part["pff_role"] == "Pass Route"]
+    # Mejor separación por jugada (receptor más libre al salir el pase): referencia del simulador.
+    mejor_sep = rutas.groupby(["gameId", "playId"])["separacion"].max().dropna()
+    _DB["liga"] = {
+        "avg_speed": liga_s, "avg_acceleration": liga_a, "avg_separation": rutas["separacion"].mean(),
+        "best_separation_mean": mejor_sep.mean(), "best_separation_std": mejor_sep.std(),
+        "pressure_rate": plays["pressure"].mean(), "success_rate": plays["success"].mean(),
+        "man_rate": (plays["pff_passCoverageType"] == "Man").mean(),
+        "t_lanzamiento": plays["t_lanzamiento"].median(),
+    }
+    # Cinemática de referencia por grupo, para jugadores que no están en el dataset.
+    con_datos = jug[jug["elegible"] & jug["max_speed"].notna()]
+    _DB["cinematica_grupo"] = con_datos.groupby("grupo")[["max_speed", "launch_accel"]].median()
 
     # --- equipos
     filas = []
@@ -797,18 +974,76 @@ def buscar_jugadas_similares(contexto: dict, top_n: int = 20) -> pd.DataFrame:
         float(contexto.get("score_diff", 0)),
     ])
     zq = (q - sim["media"]) / sim["desv"]
-    d2 = np.sum((sim["Z"] - zq) ** 2, axis=1)
-
     plays = sim["plays"]
+
+    # Cada penalización es una dimensión extra de valor 0 (coincide) o 1 (no coincide).
+    columnas = [sim["Z"] - zq]
     equipo = contexto.get("offense_team")
     if equipo:
-        d2 = d2 + (plays["possessionTeam"].to_numpy() != str(equipo).upper()).astype(float)
+        columnas.append((plays["possessionTeam"].to_numpy() != str(equipo).upper()).astype(float)[:, None])
     formacion = contexto.get("formation")
     if formacion:
         f = str(formacion)
         coincide = (plays["personnel"].to_numpy() == f) | (plays["offenseFormation"].to_numpy() == f.upper())
-        d2 = d2 + (~coincide).astype(float)
+        columnas.append((~coincide).astype(float)[:, None])
+    dist = np.linalg.norm(np.hstack(columnas), axis=1)
 
     n = int(min(max(top_n, 1), len(plays)))
-    idx = np.argsort(d2, kind="stable")[:n]
-    return plays.iloc[idx].assign(distancia=np.sqrt(d2[idx])).reset_index(drop=True)
+    idx = np.argsort(dist, kind="stable")[:n]
+    return plays.iloc[idx].assign(distancia=dist[idx]).reset_index(drop=True)
+
+
+# ============================================================ consultas para el simulador
+def trayectorias_medias(row_ids) -> np.ndarray:
+    """Trayectoria media por grupo de las jugadas indicadas: (n_grupos, FRAMES_PLANTILLA, 2).
+    NaN donde ninguna jugada tiene datos para ese grupo y frame."""
+    _requiere_datos()
+    sub = _DB["plantillas"][np.asarray(row_ids, dtype=np.int64)].astype(float)
+    # Se promedian los desplazamientos frame a frame y luego se acumulan. Promediar posiciones
+    # haría saltar la media cada vez que una jugada corta deja de aportar frames.
+    inc = np.diff(sub, axis=2)
+    validos = ~np.isnan(inc)
+    n = validos.sum(axis=0)
+    media = np.divide(np.where(validos, inc, 0.0).sum(axis=0), n, out=np.zeros(n.shape), where=n > 0)
+    out = np.empty(sub.shape[1:])
+    out[:, 0] = 0.0
+    out[:, 1:] = np.cumsum(media, axis=1)
+    sin_datos = np.concatenate([np.isnan(sub[:, :, :1]).all(axis=0), n == 0], axis=1)
+    out[sin_datos] = np.nan
+    return out
+
+
+def cinematica(player_id: int | None, grupo: str) -> tuple[float, float, bool]:
+    """(velocidad máxima yd/s, aceleración de arranque yd/s², viene_del_dataset).
+    Si el jugador no existe o le faltan datos, usa la mediana de su grupo."""
+    _requiere_datos()
+    jug, ref = _DB["jugadores"], _DB["cinematica_grupo"]
+    v_ref = float(ref.loc[grupo, "max_speed"]) if grupo in ref.index else 8.0
+    a_ref = float(ref.loc[grupo, "launch_accel"]) if grupo in ref.index else 3.0
+    if player_id is not None and player_id in jug.index:
+        r = jug.loc[player_id]
+        v, a = r.get("max_speed", np.nan), r.get("launch_accel", np.nan)
+        if pd.notna(v) and pd.notna(a):
+            return float(v), float(a), True
+        return (float(v) if pd.notna(v) else v_ref), (float(a) if pd.notna(a) else a_ref), True
+    return v_ref, a_ref, False
+
+
+def tendencias_defensa(team: str) -> dict:
+    """Tasas de cobertura de hombre y de presión de una defensa (o de la liga si no existe)."""
+    _requiere_datos()
+    liga, eqs = _DB["liga"], _DB["equipos"]
+    if team and team.upper() in eqs.index:
+        e = eqs.loc[team.upper()]
+        return {"man_rate": float(e["man_rate"]), "pressure_rate": float(e["pressure_rate"])}
+    return {"man_rate": float(liga["man_rate"]), "pressure_rate": float(liga["pressure_rate"])}
+
+
+def referencias_liga() -> dict:
+    _requiere_datos()
+    return dict(_DB["liga"])
+
+
+def equipo_existe(team: str) -> bool:
+    _requiere_datos()
+    return team.upper() in _DB["equipos"].index

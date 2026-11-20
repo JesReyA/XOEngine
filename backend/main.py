@@ -20,7 +20,7 @@ from fastapi import FastAPI, HTTPException, Path as PathParam  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
-from backend import data_engine, schemas  # noqa: E402
+from backend import data_engine, schemas, sim_engine  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
@@ -82,6 +82,18 @@ def get_scouting(player_id: int | None = None, team: str | None = None, opponent
     try:
         return data_engine.get_scouting(player_id=player_id, team=_validar_team(team),
                                         opponent=_validar_team(opponent))
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=exc.args[0]) from exc
+
+
+@app.post("/api/simulate", response_model=schemas.SimulateResponse)
+def simulate(request: schemas.SimulateRequest):
+    _validar_team(request.offense_team)
+    _validar_team(request.defense_team)
+    try:
+        return sim_engine.simular_completo(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=exc.args[0]) from exc
 
