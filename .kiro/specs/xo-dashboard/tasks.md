@@ -25,39 +25,39 @@
 
 ### T-02 Configurar `tailwind.config.js`
 
-- [ ] Reemplazar el contenido con la extensión de colores `xo.*` definida en `design.md` §1.
-- [ ] Añadir `fontFamily.sans: ['Inter', ...]` y `fontFamily.mono: ['JetBrains Mono', ...]`.
-- [ ] Añadir `borderRadius.card`, `borderRadius.chip`, `borderRadius.pill`.
-- [ ] `content` cubre `./index.html` y `./src/**/*.{ts,tsx}`.
+- [x] Reemplazar el contenido con la extensión de colores `xo.*` definida en `design.md` §1.
+- [x] Añadir `fontFamily.sans: ['Inter', ...]` y `fontFamily.mono: ['JetBrains Mono', ...]`.
+- [x] Añadir `borderRadius.card`, `borderRadius.chip`, `borderRadius.pill`.
+- [x] `content` cubre `./index.html` y `./src/**/*.{ts,tsx}`.
 
 ### T-03 Configurar `vite.config.ts`
 
-- [ ] `base: './'` — obligatorio para AWS.
-- [ ] Proxy `'/api': 'http://localhost:8000'`.
-- [ ] Plugin `@vitejs/plugin-react`.
+- [x] `base: './'` — obligatorio para AWS.
+- [x] Proxy `'/api': 'http://localhost:8000'`.
+- [x] Plugin `@vitejs/plugin-react`.
 
 ### T-04 Configurar `src/index.css`
 
-- [ ] Primeras tres líneas: `@tailwind base; @tailwind components; @tailwind utilities;`.
-- [ ] Variables CSS: `--ease-apple` y `--ease-snappy` en `:root`.
-- [ ] Clases base: `.ease-apple`, `.press-tactile` con `:active`.
-- [ ] Keyframes y clases: `@keyframes panelEnter` → `.animate-panel-enter`.
-- [ ] `@keyframes slideInRight` → `.animate-slide-in-right`.
-- [ ] `@keyframes slideOutRight` → `.animate-slide-out-right`.
-- [ ] Clases `.stagger-1` a `.stagger-4` con `animation-delay`.
-- [ ] Bloque `@media (prefers-reduced-motion: reduce)`.
-- [ ] Focus visible global en capa `@layer base`.
+- [x] Primeras tres líneas: `@tailwind base; @tailwind components; @tailwind utilities;`.
+- [x] Variables CSS: `--ease-apple` y `--ease-snappy` en `:root`.
+- [x] Clases base: `.ease-apple`, `.press-tactile` con `:active`.
+- [x] Keyframes y clases: `@keyframes panelEnter` → `.animate-panel-enter`.
+- [x] `@keyframes slideInRight` → `.animate-slide-in-right`.
+- [x] `@keyframes slideOutRight` → `.animate-slide-out-right`.
+- [x] Clases `.stagger-1` a `.stagger-4` con `animation-delay`.
+- [x] Bloque `@media (prefers-reduced-motion: reduce)`.
+- [x] Focus visible global en capa `@layer base`.
 
 ### T-05 Cargar fuentes en `index.html`
 
-- [ ] `<link rel="preconnect" href="https://fonts.googleapis.com">`.
-- [ ] `<link>` de Google Fonts: `Inter` pesos 400, 500, 600, 700 + `JetBrains+Mono` peso 700, con `display=swap`.
-- [ ] `<title>X&O Engine</title>`.
-- [ ] `<meta name="description" content="Plataforma de analítica táctica NFL">`.
+- [x] `<link rel="preconnect" href="https://fonts.googleapis.com">`.
+- [x] `<link>` de Google Fonts: `Inter` pesos 400, 500, 600, 700 + `JetBrains+Mono` peso 700, con `display=swap`.
+- [x] `<title>X&O Engine</title>`.
+- [x] `<meta name="description" content="Plataforma de analítica táctica NFL">`.
 
 ### T-06 Crear tipos TypeScript en `src/types/api.ts`
 
-- [ ] Copiar y completar exactamente los tipos definidos en `02-api-contract.md`:
+- [x] Copiar y completar exactamente los tipos definidos en `02-api-contract.md`:
   - `Mode`, `CurrentView` (incluyendo `'team'`: `'board' | 'scouting' | 'stats' | 'team' | 'challenge' | 'rankings' | 'academy'`), `DecisionType`, `ImpactType`
   - `PlayerInput`, `PlayerFrame`, `SimFrame`
   - `EffectivenessFactor`, `Effectiveness`
@@ -66,24 +66,24 @@
   - `ChallengeScenario`, `ChallengeScenariosResponse` (para `GET /api/challenge`), `ChallengeRequest`, `ChallengeResponse` (para `POST /api/challenge`)
   - `StatsResponse`, `TeamResponse`, `ScoutingResponse`, `RankingsResponse` (para los endpoints `GET` y `mocks/`)
   - `RankingsSubmitRequest`, `RankingsSubmitResponse`
-- [ ] Mantener en este archivo únicamente los tipos del contrato de API; los tipos internos de UI van en sus propios componentes.
+- [x] Mantener en este archivo únicamente los tipos del contrato de API; los tipos internos de UI van en sus propios componentes.
 
 ### T-07 Crear capa de servicios `src/services/api.ts`
 
-- [ ] Flag `const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'`.
-- [ ] Implementar todas las funciones de `api.*` del contrato (`health`, `stats`, `team`, `scouting`, `simulate`, `getChallenge`, `challenge`, `rankings`, `submitRanking`, `chat`).
-- [ ] Todas las rutas `fetch` sin diagonal inicial: `'api/...'`.
-- [ ] Cuando `USE_MOCK=true`, importar y retornar los mocks correspondientes.
-- [ ] Ninguna función retorna datos directamente hardcodeados; los mocks son importaciones tipadas.
+- [x] Flag `const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'`.
+- [x] Implementar todas las funciones de `api.*` del contrato (`health`, `stats`, `team`, `scouting`, `simulate`, `getChallenge`, `challenge`, `rankings`, `submitRanking`, `chat`).
+- [x] Todas las rutas `fetch` sin diagonal inicial: `'api/...'`.
+- [x] Cuando `USE_MOCK=true`, importar y retornar los mocks correspondientes.
+- [x] Ninguna función retorna datos directamente hardcodeados; los mocks son importaciones tipadas.
 
 ### T-08 Crear mocks tipados en `src/mocks/`
 
-- [ ] `simulateMock.ts` — `SimulateResponse` con 3 jugadores en `frames[0].players` y al menos 20 frames.
-- [ ] `statsMock.ts` — `StatsResponse` con 5 `top_players`, 4 `fun_facts`.
-- [ ] `scoutingMock.ts` — `ScoutingResponse` con `player_profile`, `team_profile` y 3 `critical_alerts` (1 high, 1 medium, 1 low).
-- [ ] `challengeMock.ts` — `ChallengeScenariosResponse` (5 escenarios iniciales) + `ChallengeResponse` con 3 `options_reference` y veredicto completo.
-- [ ] `rankingsMock.ts` — `RankingsResponse` con 5 entradas en `individual` y 5 en `fan_leagues`.
-- [ ] `teamMock.ts` — `TeamResponse` con calendario, jugadores clave y próximo rival.
+- [x] `simulateMock.ts` — `SimulateResponse` con 3 jugadores en `frames[0].players` y al menos 20 frames.
+- [x] `statsMock.ts` — `StatsResponse` con 5 `top_players`, 4 `fun_facts`.
+- [x] `scoutingMock.ts` — `ScoutingResponse` con `player_profile`, `team_profile` y 3 `critical_alerts` (1 high, 1 medium, 1 low).
+- [x] `challengeMock.ts` — `ChallengeScenariosResponse` (5 escenarios iniciales) + `ChallengeResponse` con 3 `options_reference` y veredicto completo.
+- [x] `rankingsMock.ts` — `RankingsResponse` con 5 entradas en `individual` y 5 en `fan_leagues`.
+- [x] `teamMock.ts` — `TeamResponse` con calendario, jugadores clave y próximo rival.
 
 ---
 
@@ -91,40 +91,40 @@
 
 ### T-10 `src/App.tsx`
 
-- [ ] Estado: `mode: Mode` (default `'fan'`), `view: CurrentView` (default `'stats'`).
-- [ ] Handler `handleNavigate(v: CurrentView)` que actualiza `view`.
-- [ ] Handler `handleModeChange(m: Mode)` que actualiza `mode` y resetea `view` al default del modo (`'board'` para coach, `'stats'` para fan).
-- [ ] Estado `suggestedPlayers: PlayerInput[]` que se pasa hacia abajo; actualizable desde `Copilot`.
-- [ ] Renderiza: `<Navbar>`, condicional `<CoachView>` o `<FanView>`, `<Copilot>`.
-- [ ] `className` del div raíz: `min-h-screen bg-xo-deep-bg text-xo-text-primary font-sans`.
+- [x] Estado: `mode: Mode` (default `'fan'`), `view: CurrentView` (default `'stats'`).
+- [x] Handler `handleNavigate(v: CurrentView)` que actualiza `view`.
+- [x] Handler `handleModeChange(m: Mode)` que actualiza `mode` y resetea `view` al default del modo (`'board'` para coach, `'stats'` para fan).
+- [x] Estado `suggestedPlayers: PlayerInput[]` que se pasa hacia abajo; actualizable desde `Copilot`.
+- [x] Renderiza: `<Navbar>`, condicional `<CoachView>` o `<FanView>`, `<Copilot>`.
+- [x] `className` del div raíz: `min-h-screen bg-xo-deep-bg text-xo-text-primary font-sans`.
 
 ### T-11 `src/components/shared/Navbar.tsx`
 
-- [ ] Props: `mode`, `onModeChange`, `currentView`, `onNavigate`.
-- [ ] Logotipo izquierdo: texto «X&O Engine» con «X&O» en `text-xo-electric` y «Engine» en `text-xo-text-primary`, `text-lg font-bold`.
-- [ ] Interruptor central: contenedor `bg-xo-surface rounded-pill p-1 flex relative`.
+- [x] Props: `mode`, `onModeChange`, `currentView`, `onNavigate`.
+- [x] Logotipo izquierdo: texto «X&O Engine» con «X&O» en `text-xo-electric` y «Engine» en `text-xo-text-primary`, `text-lg font-bold`.
+- [x] Interruptor central: contenedor `bg-xo-surface rounded-pill p-1 flex relative`.
   - Píldora deslizante absoluta: `bg-xo-electric` (coach) / `bg-xo-fan-accent` (fan), transición `transform 240ms ease-apple`.
   - Dos botones `role="tab"` con `aria-selected`.
   - Icono SVG `IconBriefcase` (coach) e `IconTrophy` (fan) con texto.
-- [ ] Zona derecha: `IconBell` + avatar círculo 32 px con iniciales «JR».
-- [ ] `role="tablist"` en el contenedor del interruptor.
-- [ ] Clases: `h-14 bg-xo-surface border-b border-xo-border flex items-center justify-between px-6`.
+- [x] Zona derecha: `IconBell` + avatar círculo 32 px con iniciales «JR».
+- [x] `role="tablist"` en el contenedor del interruptor.
+- [x] Clases: `h-14 bg-xo-surface border-b border-xo-border flex items-center justify-between px-6`.
 
 ### T-12 Sidebar compartido (`src/components/shared/Sidebar.tsx`)
 
-- [ ] Props: `mode`, `currentView`, `onNavigate`.
-- [ ] Modo Coach: ítems Sala Táctica (→`board`), Scouting (→`scouting`).
-- [ ] Modo Fan: ítems Estadísticas (→`stats`), Mi Equipo, Juega a ser el Entrenador (→`challenge`), Rankings (→`rankings`), Academia NFL (→`academy`).
-- [ ] Ítem activo: `bg-xo-electric/15 border-l-2 border-xo-electric text-xo-text-primary` (coach) / misma lógica con `fan-accent` (fan).
-- [ ] Ítem inactivo: `text-xo-text-secondary hover:text-xo-text-primary hover:bg-xo-elevated/50 press-tactile`.
-- [ ] Logo NFL en la parte inferior: círculo 48 px con texto «NFL» en gris.
-- [ ] Clases del contenedor: `w-56 bg-xo-surface border-r border-xo-border flex flex-col py-4`.
+- [x] Props: `mode`, `currentView`, `onNavigate`.
+- [x] Modo Coach: ítems Sala Táctica (→`board`), Scouting (→`scouting`).
+- [x] Modo Fan: ítems Estadísticas (→`stats`), Mi Equipo, Juega a ser el Entrenador (→`challenge`), Rankings (→`rankings`), Academia NFL (→`academy`).
+- [x] Ítem activo: `bg-xo-electric/15 border-l-2 border-xo-electric text-xo-text-primary` (coach) / misma lógica con `fan-accent` (fan).
+- [x] Ítem inactivo: `text-xo-text-secondary hover:text-xo-text-primary hover:bg-xo-elevated/50 press-tactile`.
+- [x] Logo NFL en la parte inferior: círculo 48 px con texto «NFL» en gris.
+- [x] Clases del contenedor: `w-56 bg-xo-surface border-r border-xo-border flex flex-col py-4`.
 
 ### T-13 Layout principal (`src/components/shared/MainLayout.tsx`)
 
-- [ ] Envuelve `Sidebar` + slot de contenido (`children`).
-- [ ] `flex h-[calc(100vh-56px)]` (altura total menos navbar).
-- [ ] Área de contenido: `flex-1 overflow-y-auto bg-xo-deep-bg p-6`.
+- [x] Envuelve `Sidebar` + slot de contenido (`children`).
+- [x] `flex h-[calc(100vh-56px)]` (altura total menos navbar).
+- [x] Área de contenido: `flex-1 overflow-y-auto bg-xo-deep-bg p-6`.
 
 ---
 
@@ -132,55 +132,55 @@
 
 ### T-20 `src/hooks/useAnimation.ts`
 
-- [ ] Implementar exactamente como define `04-dashboard-guidelines.md`.
-- [ ] Funciones exportadas: `play`, `pause`, `reset`, `goToFrame(n)`.
-- [ ] Limpiar `setInterval` en cleanup del `useEffect`.
-- [ ] Exportar también `totalFrames` para el scrubber.
+- [x] Implementar exactamente como define `04-dashboard-guidelines.md`.
+- [x] Funciones exportadas: `play`, `pause`, `reset`, `goToFrame(n)`.
+- [x] Limpiar `setInterval` en cleanup del `useEffect`.
+- [x] Exportar también `totalFrames` para el scrubber.
 
 ### T-21 `src/hooks/useInterpolation.ts`
 
-- [ ] Hook que recibe `frames: SimFrame[]`, `currentFrame: number`, `fps: number`.
-- [ ] Calcula la posición interpolada de cada jugador entre `frames[currentFrame]` y `frames[currentFrame+1]` usando `requestAnimationFrame`.
-- [ ] Retorna `interpolatedPlayers: PlayerFrame[]` actualizados a 60 fps.
-- [ ] Se desactiva (devuelve players del frame exacto) si `frames.length <= 1`.
+- [x] Hook que recibe `frames: SimFrame[]`, `currentFrame: number`, `fps: number`.
+- [x] Calcula la posición interpolada de cada jugador entre `frames[currentFrame]` y `frames[currentFrame+1]` usando `requestAnimationFrame`.
+- [x] Retorna `interpolatedPlayers: PlayerFrame[]` actualizados a 60 fps.
+- [x] Se desactiva (devuelve players del frame exacto) si `frames.length <= 1`.
 
 ### T-22 `src/components/board/PlayerToken.tsx`
 
-- [ ] Props: `player: PlayerFrame & { role: string; team: 'offense' | 'defense' }`, `isDragging: boolean`, `isSelected: boolean`, `svgScale: number`.
-- [ ] `<circle>` con `fill` según equipo: `#6038F5` (offense) / `#D50A0A` (defense).
-- [ ] Stroke de selección: `<circle r="20">` exterior con `stroke="#8B6CFF"` y opacity animada.
-- [ ] `transform="scale(1.14)"` cuando `isDragging`, con transición `140ms ease-apple`.
-- [ ] Texto del rol: `<text>` centrado, `fontSize="8"`, `fontWeight="700"`, `fill="white"`.
-- [ ] `aria-label={player.role}`.
+- [x] Props: `player: PlayerFrame & { role: string; team: 'offense' | 'defense' }`, `isDragging: boolean`, `isSelected: boolean`, `svgScale: number`.
+- [x] `<circle>` con `fill` según equipo: `#6038F5` (offense) / `#D50A0A` (defense).
+- [x] Stroke de selección: `<circle r="20">` exterior con `stroke="#8B6CFF"` y opacity animada.
+- [x] `transform="scale(1.14)"` cuando `isDragging`, con transición `140ms ease-apple`.
+- [x] Texto del rol: `<text>` centrado, `fontSize="8"`, `fontWeight="700"`, `fill="white"`.
+- [x] `aria-label={player.role}`.
 
 ### T-23 `src/components/board/RouteDrawer.tsx`
 
-- [ ] Props: `trajectories: Array<{ playerId: number; points: [number, number][] }>`, `progress: number` (0–1).
-- [ ] Por cada trayectoria, calcula `totalLength` y `drawnLength = totalLength * progress`.
-- [ ] `<path stroke="#8B6CFF" strokeWidth="1.5" fill="none" opacity="0.5" strokeDasharray={totalLength} strokeDashoffset={totalLength - drawnLength}/>`.
-- [ ] Color de ruta defensiva: `stroke="#FF6B6B"`.
+- [x] Props: `trajectories: Array<{ playerId: number; points: [number, number][] }>`, `progress: number` (0–1).
+- [x] Por cada trayectoria, calcula `totalLength` y `drawnLength = totalLength * progress`.
+- [x] `<path stroke="#8B6CFF" strokeWidth="1.5" fill="none" opacity="0.5" strokeDasharray={totalLength} strokeDashoffset={totalLength - drawnLength}/>`.
+- [x] Color de ruta defensiva: `stroke="#FF6B6B"`.
 
 ### T-24 `src/components/board/AnimationPlayer.tsx`
 
-- [ ] Props: `currentFrame`, `totalFrames`, `isPlaying`, `fps`, `onPlay`, `onPause`, `onReset`, `onSeek(frame)`.
-- [ ] Scrubber: `<input type="range">` estilizado con Tailwind, `accent-color: #6038F5`.
-- [ ] Tiempo formateado: `${(currentFrame / fps).toFixed(1)}s / ${(totalFrames / fps).toFixed(1)}s`.
-- [ ] Botones play/pause/reset con SVG inline y clase `press-tactile`.
-- [ ] Botón de pantalla completa con `IconExpand`.
+- [x] Props: `currentFrame`, `totalFrames`, `isPlaying`, `fps`, `onPlay`, `onPause`, `onReset`, `onSeek(frame)`.
+- [x] Scrubber: `<input type="range">` estilizado con Tailwind, `accent-color: #6038F5`.
+- [x] Tiempo formateado: `${(currentFrame / fps).toFixed(1)}s / ${(totalFrames / fps).toFixed(1)}s`.
+- [x] Botones play/pause/reset con SVG inline y clase `press-tactile`.
+- [x] Botón de pantalla completa con `IconExpand`.
 
 ### T-25 `src/components/board/TacticalBoard.tsx`
 
-- [ ] Props: `players: PlayerInput[]`, `frames: SimFrame[]`, `currentFrame: number`, `isPlaying: boolean`, `readOnly?: boolean`, `onPlayerMove?: (id, x, y) => void`.
-- [ ] `<svg viewBox="0 0 1200 533" className="w-full h-full select-none">`.
-- [ ] Cancha: `<rect>` verde `#2D5A27`, end zones `#1E3D1A`, líneas de yarda cada 100 px (`10px/yd * 10yd`).
-- [ ] Números de yarda: `<text>` SVG a `y=20` y `y=513`, `fill="rgba(255,255,255,0.4)"`, `fontSize="14"`.
-- [ ] Línea de scrimmage: `stroke="#FFD700" strokeWidth="2" strokeDasharray="8 4"`.
-- [ ] Línea de primer down: `stroke="#00BFFF" strokeWidth="2" strokeDasharray="8 4"`.
-- [ ] Integra `useInterpolation` para posiciones a 60 fps.
-- [ ] Integra `RouteDrawer` con `progress = currentFrame / Math.max(1, frames.length - 1)`.
-- [ ] Drag nativo: `onMouseDown` en ficha → `onMouseMove` en SVG → `onMouseUp` en SVG. Calcula coordenadas en yardas con `e.clientX / svgClientWidth * 120`.
-- [ ] `readOnly=true` desactiva el drag (para Academia y Challenge pre-jugada).
-- [ ] Uso en Navbar: solo visible si ancho ≥ 768 px; en móvil el board ocupa pantalla completa.
+- [x] Props: `players: PlayerInput[]`, `frames: SimFrame[]`, `currentFrame: number`, `isPlaying: boolean`, `readOnly?: boolean`, `onPlayerMove?: (id, x, y) => void`.
+- [x] `<svg viewBox="0 0 1200 533" className="w-full h-full select-none">`.
+- [x] Cancha: `<rect>` verde `#2D5A27`, end zones `#1E3D1A`, líneas de yarda cada 100 px (`10px/yd * 10yd`).
+- [x] Números de yarda: `<text>` SVG a `y=20` y `y=513`, `fill="rgba(255,255,255,0.4)"`, `fontSize="14"`.
+- [x] Línea de scrimmage: `stroke="#FFD700" strokeWidth="2" strokeDasharray="8 4"`.
+- [x] Línea de primer down: `stroke="#00BFFF" strokeWidth="2" strokeDasharray="8 4"`.
+- [x] Integra `useInterpolation` para posiciones a 60 fps.
+- [x] Integra `RouteDrawer` con `progress = currentFrame / Math.max(1, frames.length - 1)`.
+- [x] Drag nativo: `onMouseDown` en ficha → `onMouseMove` en SVG → `onMouseUp` en SVG. Calcula coordenadas en yardas con `e.clientX / svgClientWidth * 120`.
+- [x] `readOnly=true` desactiva el drag (para Academia y Challenge pre-jugada).
+- [x] Uso en Navbar: solo visible si ancho ≥ 768 px; en móvil el board ocupa pantalla completa.
 
 ---
 
