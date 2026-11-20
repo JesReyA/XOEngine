@@ -71,6 +71,9 @@ export const IconAcademy = (p: IconProps) => (
 export const IconExpand = (p: IconProps) => (
   <Icon {...p}><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" /></Icon>
 )
+export const IconMenu = (p: IconProps) => (
+  <Icon {...p}><path d="M4 7h16M4 12h16M4 17h16" /></Icon>
+)
 export const IconClose = (p: IconProps) => (
   <Icon {...p}><path d="M6 6l12 12M18 6L6 18" /></Icon>
 )

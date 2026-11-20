@@ -3,6 +3,7 @@ import { fieldZoneToX, getFormation, type FormationId } from '../../constants/fo
 import { useAnimation } from '../../hooks/useAnimation'
 import { api } from '../../services/api'
 import type {
+  ChatCurrentPlay,
   CurrentView,
   PlayerInput,
   SimFrame,
@@ -21,13 +22,14 @@ interface CoachViewProps {
   currentView: CurrentView
   onNavigate: (view: CurrentView) => void
   suggestedPlayers: SuggestedPlayer[]
+  onPlayChange: (play: ChatCurrentPlay | null) => void
 }
 
 const EMPTY_FRAMES: SimFrame[] = []
 const DEFAULT_FORMATION: FormationId = 'shotgun_11'
 const DEFAULT_ZONE = 'own_25'
 
-export default function CoachView({ currentView, onNavigate, suggestedPlayers }: CoachViewProps) {
+export default function CoachView({ currentView, onNavigate, suggestedPlayers, onPlayChange }: CoachViewProps) {
   const [offenseTeam, setOffenseTeam] = useState('KC')
   const [defenseTeam, setDefenseTeam] = useState('SF')
   const [formation, setFormation] = useState<FormationId>(DEFAULT_FORMATION)
@@ -69,6 +71,15 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers }:
     )
     setSimResult(null)
   }, [suggestedPlayers, currentView])
+
+  // El copiloto recibe la jugada vigente como contexto.
+  useEffect(() => {
+    onPlayChange(
+      simResult
+        ? { play_id_ref: simResult.play_id_ref, effectiveness_score: simResult.effectiveness.score, players }
+        : null,
+    )
+  }, [simResult, players, onPlayChange])
 
   // Arranca la reproducción en cuanto llega una simulación nueva.
   useEffect(() => {

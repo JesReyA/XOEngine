@@ -12,6 +12,11 @@ export type CurrentView =
 export type DecisionType = 'option_a' | 'option_b' | 'option_c' | 'free_text'
 export type ImpactType = 'positive' | 'negative' | 'neutral'
 export type Severity = 'high' | 'medium' | 'low'
+export type ChatCurrentPlay = {
+  play_id_ref: string
+  effectiveness_score: number
+  players: PlayerInput[]
+}
 
 // ── Simulación ──
 export interface GameContext {
@@ -79,11 +84,7 @@ export interface SimulateResponse {
 
 // ── Chat ──
 export interface ChatContext {
-  current_play: {
-    play_id_ref: string
-    effectiveness_score: number
-    players: PlayerInput[]
-  } | null
+  current_play: ChatCurrentPlay | null
   fan_team: string | null
   current_view: CurrentView
 }
@@ -218,6 +219,10 @@ export interface ChallengeSituation {
   yards_to_go: number
   field_zone: string
   score_diff: number
+  // Contexto de partido opcional (GET api/challenge)
+  quarter?: number
+  clock?: string
+  situation_text?: string
 }
 
 export interface ChallengeOption {

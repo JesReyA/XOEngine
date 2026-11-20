@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { NFL_TEAMS } from '../../constants/teams'
+import { useApiResource } from '../../hooks/useApiResource'
 import { api } from '../../services/api'
-import type { ScoutingResponse, StatsResponse } from '../../types/api'
+import type { StatsResponse } from '../../types/api'
+import ErrorBanner from '../shared/ErrorBanner'
+import LoadingSkeleton from '../shared/LoadingSkeleton'
 import Select from '../shared/Select'
 import AlertCard from './AlertCard'
 import CoverageRadar from './CoverageRadar'
@@ -23,8 +26,16 @@ export default function ScoutingPanel({ team, opponent }: ScoutingPanelProps) {
   const [rival, setRival] = useState(team)
   const [playerId, setPlayerId] = useState('')
   const [players, setPlayers] = useState<StatsResponse['top_players']>([])
-  const [data, setData] = useState<ScoutingResponse | null>(null)
-  const [loading, setLoading] = useState(false)
+  const { data, error, loading, reload } = useApiResource(
+    () =>
+      api.scouting({
+        team: rival,
+        opponent: opponent ?? undefined,
+        player_id: playerId ? Number(playerId) : undefined,
+      }),
+    [rival, opponent, playerId],
+    rival !== '',
+  )
 
   // Jugadores del rival para el selector de perfil individual.
   useEffect(() => {
@@ -41,30 +52,6 @@ export default function ScoutingPanel({ team, opponent }: ScoutingPanelProps) {
       cancelled = true
     }
   }, [rival])
-
-  useEffect(() => {
-    if (!rival) {
-      setData(null)
-      return
-    }
-    let cancelled = false
-    setLoading(true)
-    api
-      .scouting({
-        team: rival,
-        opponent: opponent ?? undefined,
-        player_id: playerId ? Number(playerId) : undefined,
-      })
-      .then((d) => {
-        if (!cancelled) {
-          setData(d)
-          setLoading(false)
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [rival, opponent, playerId])
 
   const playerOptions = [
     { value: '', label: 'Sin jugador' },
@@ -86,11 +73,10 @@ export default function ScoutingPanel({ team, opponent }: ScoutingPanelProps) {
 
       {!rival ? (
         <p className="py-16 text-center text-sm text-xo-text-secondary">Selecciona un rival para ver su scouting</p>
+      ) : error ? (
+        <ErrorBanner message={error} onRetry={reload} />
       ) : loading || !data ? (
-        <div className="grid gap-4 md:grid-cols-2 animate-pulse" aria-busy="true">
-          <div className="h-72 rounded-card bg-xo-elevated" />
-          <div className="h-72 rounded-card bg-xo-elevated" />
-        </div>
+        <LoadingSkeleton count={2} className="h-72" />
       ) : (
         <>
           {data.player_profile && <PlayerProfileCard profile={data.player_profile} />}

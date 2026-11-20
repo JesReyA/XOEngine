@@ -71,7 +71,7 @@ export const api = {
   simulate: (body: SimulateRequest) =>
     call<SimulateResponse>('api/simulate', simulateMock, post(body)),
 
-  getChallenge: (params?: { game_id?: string; fan_team?: string }) =>
+  getChallenge: (params?: { team?: string }) =>
     call<ChallengeScenariosResponse>(
       `api/challenge${query(params)}`,
       challengeScenariosMock,
