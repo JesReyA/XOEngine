@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { fieldZoneToX } from '../../constants/formations'
+import { fieldZoneToX, toApiFieldZone } from '../../constants/formations'
 import { NFL_TEAMS } from '../../constants/teams'
 import { useAnimation } from '../../hooks/useAnimation'
 import { useApiResource } from '../../hooks/useApiResource'
@@ -86,7 +86,7 @@ export default function Challenge({ onNavigate }: ChallengeProps) {
         game_id: data.game_id,
         challenge_step: scenario.step,
         fan_team: team,
-        scenario: { down: s.down, yards_to_go: s.yards_to_go, field_zone: s.field_zone, score_diff: s.score_diff },
+        scenario: { down: s.down, yards_to_go: s.yards_to_go, field_zone: toApiFieldZone(s.field_zone), score_diff: s.score_diff },
         decision_type: useText ? 'free_text' : (selected ?? 'free_text'),
         selected_option: useText ? null : selected,
         free_text: useText ? freeText.trim() : null,

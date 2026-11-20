@@ -22,7 +22,6 @@ const IMPACT_BAR: Record<ImpactType, string> = {
   negative: 'bg-xo-danger',
   neutral: 'bg-xo-text-muted',
 }
-const SIGN: Record<ImpactType, string> = { positive: '+', negative: '−', neutral: '' }
 
 export default function EffectivenessBar({
   effectiveness,
@@ -109,7 +108,6 @@ export default function EffectivenessBar({
                 <span className="ml-1.5 font-mono text-xo-text-muted">{Math.round(f.weight * 100)}%</span>
               </span>
               <span className={`font-mono font-bold ${IMPACT_TEXT[f.impact]}`}>
-                {SIGN[f.impact]}
                 {f.value.toFixed(1)}
                 <span className="sr-only"> impacto {f.impact}</span>
               </span>

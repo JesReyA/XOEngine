@@ -45,13 +45,20 @@ export default function ScoutingPanel({ team, opponent }: ScoutingPanelProps) {
       return
     }
     let cancelled = false
-    api.stats({ team: rival }).then((s) => {
-      if (!cancelled) setPlayers(s.top_players.filter((p) => p.team === rival || !rival))
-    })
+    api
+      .stats({ team: rival })
+      .then((s) => {
+        if (!cancelled) setPlayers(s.top_players.filter((p) => p.team === rival || !rival))
+      })
+      .catch(() => {
+        if (!cancelled) setPlayers([]) // el selector de jugador queda vacío; el resto del panel sigue
+      })
     return () => {
       cancelled = true
     }
   }, [rival])
+
+  const tp = data?.team_profile ?? null
 
   const playerOptions = [
     { value: '', label: 'Sin jugador' },
@@ -82,16 +89,16 @@ export default function ScoutingPanel({ team, opponent }: ScoutingPanelProps) {
           {data.player_profile && <PlayerProfileCard profile={data.player_profile} />}
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <section className="bg-xo-elevated border border-xo-border rounded-card p-4" aria-labelledby="team-profile-title">
-              <h2 id="team-profile-title" className="text-lg font-semibold">Perfil de {data.team_profile.team}</h2>
+            {tp && (<section className="bg-xo-elevated border border-xo-border rounded-card p-4" aria-labelledby="team-profile-title">
+              <h2 id="team-profile-title" className="text-lg font-semibold">Perfil de {tp.team}</h2>
               <dl className="mt-3 grid grid-cols-3 gap-3">
-                <div><dt className="text-xs text-xo-text-secondary">Velocidad de jugada</dt><dd className="font-mono text-2xl font-bold">{data.team_profile.avg_play_speed.toFixed(1)}</dd></div>
-                <div><dt className="text-xs text-xo-text-secondary">Blitz</dt><dd className="font-mono text-2xl font-bold">{pct(data.team_profile.blitz_rate)}</dd></div>
-                <div><dt className="text-xs text-xo-text-secondary">Blitz en 3ro</dt><dd className="font-mono text-2xl font-bold">{pct(data.team_profile.third_down_blitz_rate)}</dd></div>
+                <div><dt className="text-xs text-xo-text-secondary">Velocidad de jugada</dt><dd className="font-mono text-2xl font-bold">{tp.avg_play_speed.toFixed(1)}</dd></div>
+                <div><dt className="text-xs text-xo-text-secondary">Blitz</dt><dd className="font-mono text-2xl font-bold">{pct(tp.blitz_rate)}</dd></div>
+                <div><dt className="text-xs text-xo-text-secondary">Blitz en 3ro</dt><dd className="font-mono text-2xl font-bold">{pct(tp.third_down_blitz_rate)}</dd></div>
               </dl>
               <h3 className="mt-4 text-sm font-semibold text-xo-text-secondary">Distribución de coberturas</h3>
-              <CoverageRadar distribution={data.team_profile.coverage_distribution} />
-            </section>
+              <CoverageRadar distribution={tp.coverage_distribution} />
+            </section>)}
 
             <section aria-labelledby="alerts-title">
               <h2 id="alerts-title" className="text-lg font-semibold mb-3">Alertas críticas</h2>

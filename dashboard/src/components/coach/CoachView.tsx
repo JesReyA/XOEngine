@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fieldZoneToX, getFormation, type FormationId } from '../../constants/formations'
+import { fieldZoneToX, getFormation, toApiFieldZone, type FormationId } from '../../constants/formations'
 import { useAnimation } from '../../hooks/useAnimation'
 import { api } from '../../services/api'
 import type {
@@ -13,6 +13,7 @@ import type {
 import AnimationPlayer from '../board/AnimationPlayer'
 import TacticalBoard from '../board/TacticalBoard'
 import EffectivenessBar from '../shared/EffectivenessBar'
+import ErrorBanner from '../shared/ErrorBanner'
 import MainLayout from '../shared/MainLayout'
 import ControlBar from './ControlBar'
 import RecentPlaysTable, { type RecentPlay } from './RecentPlaysTable'
@@ -41,6 +42,7 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers, o
   )
   const [simResult, setSimResult] = useState<SimulateResponse | null>(null)
   const [isSimulating, setIsSimulating] = useState(false)
+  const [simError, setSimError] = useState<string | null>(null)
   const boardRef = useRef<HTMLDivElement>(null)
   const [history, setHistory] = useState<Array<RecentPlay & { sim: SimulateResponse }>>([])
 
@@ -93,11 +95,13 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers, o
 
   const simulate = async () => {
     setIsSimulating(true)
+    setSimError(null)
+    try {
     const res = await api.simulate({
       game_context: {
         down,
         yards_to_go: yardsToGo,
-        field_zone: fieldZone,
+        field_zone: toApiFieldZone(fieldZone),
         quarter: 2,
         score_diff: 0,
       },
@@ -121,7 +125,11 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers, o
         ...h,
       ].slice(0, 8),
     )
-    setIsSimulating(false)
+    } catch (e) {
+      setSimError(e instanceof Error ? e.message : 'No se pudo simular la jugada.')
+    } finally {
+      setIsSimulating(false)
+    }
   }
 
   return (
@@ -147,6 +155,8 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers, o
             onChangeZone={(z) => applyPreset(formation, z)}
             onSimulate={simulate}
           />
+
+          {simError && <ErrorBanner message={simError} onRetry={simulate} />}
 
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             <div className="w-full lg:w-[65%] space-y-3">

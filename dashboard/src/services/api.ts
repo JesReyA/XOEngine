@@ -21,8 +21,16 @@ import type {
   TeamResponse,
 } from '../types/api'
 
-// Fuerza los mocks sin llamar al backend (desarrollo independiente).
+// Solo con VITE_USE_MOCK=true se ignora el backend por completo.
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
+
+export class ApiError extends Error {
+  status: number
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+  }
+}
 
 // Rutas SIEMPRE relativas, sin diagonal inicial: la app vive en una subruta de AWS.
 function query(params?: object): string {
@@ -41,15 +49,37 @@ const post = (body: unknown): RequestInit => ({
   body: JSON.stringify(body),
 })
 
-// Respaldo automático: si el backend no responde o devuelve error, se usa el mock.
+async function request<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init)
+  if (!res.ok) {
+    let detail = `Error ${res.status} del servidor`
+    try {
+      const body = (await res.json()) as { detail?: unknown }
+      if (typeof body.detail === 'string') detail = body.detail
+    } catch {
+      /* cuerpo sin JSON: se conserva el mensaje genérico */
+    }
+    throw new ApiError(res.status, detail)
+  }
+  return (await res.json()) as T
+}
+
+// Endpoints ya implementados en el backend: errores reales llegan a la UI.
 async function call<T>(url: string, mock: T, init?: RequestInit): Promise<T> {
   if (USE_MOCK) return mock
+  return request<T>(url, init)
+}
+
+// Endpoints del Checkpoint 3 de backend (en desarrollo): si la ruta aún no existe
+// (404, o 405 cuando el servidor sirve el build estático en `/`) se usa el mock.
+// Cualquier otro error se propaga.
+async function callWithFallback<T>(url: string, mock: T, init?: RequestInit): Promise<T> {
+  if (USE_MOCK) return mock
   try {
-    const res = await fetch(url, init)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return (await res.json()) as T
-  } catch {
-    return mock
+    return await request<T>(url, init)
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 404 || e.status === 405)) return mock
+    throw e
   }
 }
 
@@ -60,10 +90,7 @@ export const api = {
     call<StatsResponse>(`api/stats${query(params)}`, statsMock),
 
   team: (abbr: string) =>
-    call<TeamResponse>(`api/team/${abbr}`, {
-      ...teamMock,
-      team_abbr: abbr,
-    }),
+    call<TeamResponse>(`api/team/${abbr}`, { ...teamMock, team_abbr: abbr }),
 
   scouting: (params?: { player_id?: number; team?: string; opponent?: string }) =>
     call<ScoutingResponse>(`api/scouting${query(params)}`, scoutingMock),
@@ -72,23 +99,19 @@ export const api = {
     call<SimulateResponse>('api/simulate', simulateMock, post(body)),
 
   getChallenge: (params?: { team?: string }) =>
-    call<ChallengeScenariosResponse>(
+    callWithFallback<ChallengeScenariosResponse>(
       `api/challenge${query(params)}`,
       challengeScenariosMock,
     ),
 
   challenge: (body: ChallengeRequest) =>
-    call<ChallengeResponse>('api/challenge', challengeResponseMock, post(body)),
+    callWithFallback<ChallengeResponse>('api/challenge', challengeResponseMock, post(body)),
 
   rankings: (params?: { limit?: number; team?: string }) =>
-    call<RankingsResponse>(`api/rankings${query(params)}`, rankingsMock),
+    callWithFallback<RankingsResponse>(`api/rankings${query(params)}`, rankingsMock),
 
   submitRanking: (body: RankingsSubmitRequest) =>
-    call<RankingsSubmitResponse>(
-      'api/rankings/submit',
-      rankingsSubmitMock,
-      post(body),
-    ),
+    callWithFallback<RankingsSubmitResponse>('api/rankings/submit', rankingsSubmitMock, post(body)),
 
-  chat: (body: ChatRequest) => call<ChatResponse>('api/chat', chatMock, post(body)),
+  chat: (body: ChatRequest) => callWithFallback<ChatResponse>('api/chat', chatMock, post(body)),
 }
