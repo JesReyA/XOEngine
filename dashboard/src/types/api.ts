@@ -12,6 +12,11 @@ export type CurrentView =
 export type DecisionType = 'option_a' | 'option_b' | 'option_c' | 'free_text'
 export type ImpactType = 'positive' | 'negative' | 'neutral'
 export type Severity = 'high' | 'medium' | 'low'
+export type ChatCurrentPlay = {
+  play_id_ref: string
+  effectiveness_score: number
+  players: PlayerInput[]
+}
 
 // ── Simulación ──
 export interface GameContext {
@@ -79,11 +84,7 @@ export interface SimulateResponse {
 
 // ── Chat ──
 export interface ChatContext {
-  current_play: {
-    play_id_ref: string
-    effectiveness_score: number
-    players: PlayerInput[]
-  } | null
+  current_play: ChatCurrentPlay | null
   fan_team: string | null
   current_view: CurrentView
 }
@@ -186,6 +187,7 @@ export interface ScoutingAlert {
 }
 
 export interface ScoutingResponse {
+  // null cuando la consulta no incluye player_id
   player_profile: {
     player_id: number
     display_name: string
@@ -199,18 +201,14 @@ export interface ScoutingResponse {
       favorite_zones: string[]
       effectiveness_by_formation: Record<string, number>
     }
-  }
+  } | null
   team_profile: {
     team: string
     avg_play_speed: number
     blitz_rate: number
     third_down_blitz_rate: number
-    coverage_distribution: {
-      cover_1: number
-      cover_2: number
-      cover_3: number
-      cover_4: number
-    }
+    // El backend devuelve también cover_0, cover_6, red_zone, 2_man, etc.
+    coverage_distribution: Record<string, number>
   }
   critical_alerts: ScoutingAlert[]
 }
@@ -221,6 +219,10 @@ export interface ChallengeSituation {
   yards_to_go: number
   field_zone: string
   score_diff: number
+  // Contexto de partido opcional (GET api/challenge)
+  quarter?: number
+  clock?: string
+  situation_text?: string
 }
 
 export interface ChallengeOption {

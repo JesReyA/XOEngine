@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NFL_TEAMS, teamByAbbr } from '../../constants/teams'
+import { useApiResource } from '../../hooks/useApiResource'
 import { api } from '../../services/api'
-import type { TeamResponse } from '../../types/api'
+import { getFanTeam, setFanTeam } from '../../services/storage'
+import ErrorBanner from '../shared/ErrorBanner'
+import LoadingSkeleton from '../shared/LoadingSkeleton'
 import Select from '../shared/Select'
 import FormArc from './FormArc'
 
-const STORAGE_KEY = 'xo_fan_team'
 const TEAM_OPTIONS = NFL_TEAMS.map((t) => ({ value: t.abbr, label: `${t.abbr} · ${t.name}` }))
 
 const TENDENCY_STYLE: Record<string, string> = {
@@ -15,43 +17,21 @@ const TENDENCY_STYLE: Record<string, string> = {
 }
 const tendencyLabel = (t: string) => t.replace(/_/g, ' ')
 
-function readStoredTeam(): string {
-  try {
-    return localStorage.getItem(STORAGE_KEY) || 'KC'
-  } catch {
-    return 'KC'
-  }
-}
-
 export default function MyTeam() {
-  const [selected, setSelected] = useState(readStoredTeam)
-  const [data, setData] = useState<TeamResponse | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    setData(null)
-    api.team(selected).then((d) => {
-      if (!cancelled) setData(d)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [selected])
+  const [selected, setSelected] = useState(() => getFanTeam() ?? 'KC')
+  const { data: fetched, error, loading, reload } = useApiResource(() => api.team(selected), [selected])
+  const data = loading ? null : fetched
 
   const choose = (abbr: string) => {
     setSelected(abbr)
-    try {
-      localStorage.setItem(STORAGE_KEY, abbr)
-    } catch {
-      /* almacenamiento no disponible: la selección sigue vigente en memoria */
-    }
+    setFanTeam(abbr)
   }
 
   const record = useMemo(() => {
     const games = data?.schedule ?? []
     const wins = games.filter((g) => g.result.startsWith('W')).length
     const losses = games.filter((g) => g.result.startsWith('L')).length
-    return `${wins}-${losses}`
+    return wins + losses === 0 ? 'sin resultados' : `${wins}-${losses}`
   }, [data])
 
   const team = teamByAbbr(selected)
@@ -78,11 +58,9 @@ export default function MyTeam() {
         <Select label="Equipo favorito" value={selected} options={TEAM_OPTIONS} onChange={choose} className="w-64" />
       </header>
 
+      {error && <ErrorBanner message={error} onRetry={reload} />}
       {!data ? (
-        <div className="grid gap-4 md:grid-cols-2 animate-pulse" aria-busy="true">
-          <div className="h-64 rounded-card bg-xo-elevated" />
-          <div className="h-64 rounded-card bg-xo-elevated" />
-        </div>
+        !error && <LoadingSkeleton count={2} className="h-64" />
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           <section className="bg-xo-elevated border border-xo-border rounded-card p-4" aria-labelledby="sched-title">
@@ -97,7 +75,7 @@ export default function MyTeam() {
                     <td className="py-2 font-mono">{g.week}</td>
                     <td className="py-2">{g.opponent}</td>
                     <td className="py-2 text-xo-text-secondary">{g.home ? 'Local' : 'Visitante'}</td>
-                    <td className={`py-2 text-right font-mono ${g.result.startsWith('W') ? 'text-xo-success' : 'text-xo-danger'}`}>{g.result}</td>
+                    <td className={`py-2 text-right font-mono ${g.result.startsWith('W') ? 'text-xo-success' : g.result.startsWith('L') ? 'text-xo-danger' : 'text-xo-text-muted'}`}>{g.result}</td>
                   </tr>
                 ))}
               </tbody>

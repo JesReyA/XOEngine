@@ -3,6 +3,7 @@ import { fieldZoneToX, getFormation, type FormationId } from '../../constants/fo
 import { useAnimation } from '../../hooks/useAnimation'
 import { api } from '../../services/api'
 import type {
+  ChatCurrentPlay,
   CurrentView,
   PlayerInput,
   SimFrame,
@@ -11,22 +12,24 @@ import type {
 } from '../../types/api'
 import AnimationPlayer from '../board/AnimationPlayer'
 import TacticalBoard from '../board/TacticalBoard'
-import ComingSoon from '../shared/ComingSoon'
 import EffectivenessBar from '../shared/EffectivenessBar'
 import MainLayout from '../shared/MainLayout'
 import ControlBar from './ControlBar'
+import RecentPlaysTable, { type RecentPlay } from './RecentPlaysTable'
+import ScoutingPanel from './ScoutingPanel'
 
 interface CoachViewProps {
   currentView: CurrentView
   onNavigate: (view: CurrentView) => void
   suggestedPlayers: SuggestedPlayer[]
+  onPlayChange: (play: ChatCurrentPlay | null) => void
 }
 
 const EMPTY_FRAMES: SimFrame[] = []
 const DEFAULT_FORMATION: FormationId = 'shotgun_11'
 const DEFAULT_ZONE = 'own_25'
 
-export default function CoachView({ currentView, onNavigate, suggestedPlayers }: CoachViewProps) {
+export default function CoachView({ currentView, onNavigate, suggestedPlayers, onPlayChange }: CoachViewProps) {
   const [offenseTeam, setOffenseTeam] = useState('KC')
   const [defenseTeam, setDefenseTeam] = useState('SF')
   const [formation, setFormation] = useState<FormationId>(DEFAULT_FORMATION)
@@ -39,6 +42,7 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers }:
   const [simResult, setSimResult] = useState<SimulateResponse | null>(null)
   const [isSimulating, setIsSimulating] = useState(false)
   const boardRef = useRef<HTMLDivElement>(null)
+  const [history, setHistory] = useState<Array<RecentPlay & { sim: SimulateResponse }>>([])
 
   const frames = simResult?.frames ?? EMPTY_FRAMES
   const fps = simResult?.fps ?? 10
@@ -68,6 +72,15 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers }:
     setSimResult(null)
   }, [suggestedPlayers, currentView])
 
+  // El copiloto recibe la jugada vigente como contexto.
+  useEffect(() => {
+    onPlayChange(
+      simResult
+        ? { play_id_ref: simResult.play_id_ref, effectiveness_score: simResult.effectiveness.score, players }
+        : null,
+    )
+  }, [simResult, players, onPlayChange])
+
   // Arranca la reproducción en cuanto llega una simulación nueva.
   useEffect(() => {
     if (simResult) play()
@@ -95,16 +108,26 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers }:
       mode: 'coach',
     })
     setSimResult(res)
+    setHistory((h) =>
+      [
+        {
+          id: `${Date.now()}`,
+          name: `${offenseTeam} vs ${defenseTeam} · ${down}º & ${yardsToGo}`,
+          result: res.effectiveness.score >= 0.5 ? ('success' as const) : ('failure' as const),
+          effectiveness: res.effectiveness.score,
+          time: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+          sim: res,
+        },
+        ...h,
+      ].slice(0, 8),
+    )
     setIsSimulating(false)
   }
 
   return (
     <MainLayout mode="coach" currentView={currentView} onNavigate={onNavigate}>
       {currentView === 'scouting' ? (
-        <ComingSoon
-          title="Scouting"
-          description="Perfiles de rival y alertas por percentil llegan en el siguiente checkpoint."
-        />
+        <ScoutingPanel team={defenseTeam} opponent={offenseTeam} />
       ) : (
         <div className="space-y-5">
           <h1 className="text-3xl font-bold">Sala táctica predictiva</h1>
@@ -159,14 +182,18 @@ export default function CoachView({ currentView, onNavigate, suggestedPlayers }:
               <EffectivenessBar
                 effectiveness={simResult?.effectiveness ?? null}
                 isLoading={isSimulating}
+                similarPlays={simResult?.similar_plays_found}
               />
-              {simResult && (
-                <p className="mt-3 text-xs text-xo-text-secondary">
-                  Basado en {simResult.similar_plays_found} jugadas históricas similares.
-                </p>
-              )}
             </div>
           </div>
+
+          <RecentPlaysTable
+            plays={history}
+            onReplay={(id) => {
+              const h = history.find((x) => x.id === id)
+              if (h) setSimResult(h.sim)
+            }}
+          />
         </div>
       )}
     </MainLayout>

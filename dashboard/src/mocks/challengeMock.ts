@@ -24,7 +24,12 @@ function scenario(
   return {
     step,
     description,
-    scenario: situation,
+    scenario: {
+      ...situation,
+      quarter: [1, 2, 3, 4, 4][step - 1],
+      clock: ['14:32', '0:48', '6:15', '9:40', '2:05'][step - 1],
+      situation_text: description,
+    },
     players: FORMATIONS[formation % FORMATIONS.length].build(ls),
     options: OPTIONS,
   }
