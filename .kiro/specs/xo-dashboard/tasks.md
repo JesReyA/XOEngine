@@ -254,70 +254,70 @@
 
 ### T-50 `src/components/fan/FanView.tsx`
 
-- [ ] Props: `currentView`, `onNavigate`, `suggestedPlayers`.
-- [ ] Layout: `<MainLayout>` con renderizado condicional por `currentView`.
-- [ ] Vista `stats` renderiza `StatsExplorer`.
-- [ ] Vista `challenge` renderiza `Challenge`.
-- [ ] Vista `rankings` renderiza `Rankings`.
-- [ ] Vista `academy` renderiza `NflAcademy`.
-- [ ] Vista `team` renderiza `MyTeam`.
+- [x] Props: `currentView`, `onNavigate`, `suggestedPlayers`.
+- [x] Layout: `<MainLayout>` con renderizado condicional por `currentView`.
+- [x] Vista `stats` renderiza `StatsExplorer`.
+- [x] Vista `challenge` renderiza `Challenge`.
+- [x] Vista `rankings` renderiza `Rankings`.
+- [x] Vista `academy` renderiza `NflAcademy`.
+- [x] Vista `team` renderiza `MyTeam`.
 
 ### T-51 `src/components/fan/StatsExplorer.tsx`
 
-- [ ] `useEffect` inicial: `api.stats()` → poblado de estado.
-- [ ] Selector de equipo: dropdown 32 equipos → `api.stats({ team })`.
-- [ ] Tres cards superiores (grid 3 col): velocidad promedio, separación promedio, efectividad 3&7+. Cada card: valor en `font-mono text-3xl` + label + delta.
-- [ ] Sección «Top Velocistas»: `BarChart` Recharts con `max_speed` de `top_players`.
-- [ ] Sección «¿Sabías qué?»: grid de cards de `fun_facts`. Cada card `.animate-panel-enter` con clases `.stagger-1` a `.stagger-4`.
-- [ ] Búsqueda de jugador: `<input>` con filtrado sobre `top_players` por nombre.
+- [x] `useEffect` inicial: `api.stats()` → poblado de estado.
+- [x] Selector de equipo: dropdown 32 equipos → `api.stats({ team })`.
+- [x] Tres cards superiores (grid 3 col): velocidad promedio, separación promedio, efectividad 3&7+. Cada card: valor en `font-mono text-3xl` + label + delta.
+- [x] Sección «Top Velocistas»: `BarChart` Recharts con `max_speed` de `top_players`.
+- [x] Sección «¿Sabías qué?»: grid de cards de `fun_facts`. Cada card `.animate-panel-enter` con clases `.stagger-1` a `.stagger-4`.
+- [x] Búsqueda de jugador: `<input>` con filtrado sobre `top_players` por nombre.
 
 ### T-52 `src/components/fan/MyTeam.tsx`
 
-- [ ] `useState` para `selectedTeam` inicializado desde `localStorage('xo_fan_team')`.
-- [ ] Selector de franquicia (dropdown 32 equipos). Al cambiar: persiste en `localStorage` y llama `api.team(abbr)`.
-- [ ] Panel principal: logo placeholder (SVG con colores del equipo), nombre, record, índice de forma.
-- [ ] Tabla de próximos partidos: semana, rival, local/visitante.
-- [ ] Lista de jugadores clave: nombre, posición, `form_index` como arco SVG circular animado.
-- [ ] Card de próximo rival con tendencias como badges (`blitz_heavy` → rojo, `cover_2` → azul, etc.).
+- [x] `useState` para `selectedTeam` inicializado desde `localStorage('xo_fan_team')`.
+- [x] Selector de franquicia (dropdown 32 equipos). Al cambiar: persiste en `localStorage` y llama `api.team(abbr)`.
+- [x] Panel principal: logo placeholder (SVG con colores del equipo), nombre, record, índice de forma.
+- [x] Tabla de próximos partidos: semana, rival, local/visitante.
+- [x] Lista de jugadores clave: nombre, posición, `form_index` como arco SVG circular animado.
+- [x] Card de próximo rival con tendencias como badges (`blitz_heavy` → rojo, `cover_2` → azul, etc.).
 
 ### T-53 `src/components/fan/Challenge.tsx`
 
-- [ ] Estado: `step` (0–4), `scores: number[]`, `selectedOption: string | null`, `freeText`, `simResult: ChallengeResponse | null`, `phase: 'select' | 'animating' | 'verdict' | 'summary'`.
-- [ ] Indicador de progreso: 5 círculos. Activo: `bg-xo-fan-accent`. Completado: `bg-xo-success`. Pendiente: `bg-xo-border`.
-- [ ] Pizarra: `TacticalBoard` en `readOnly=true` con la situación del escenario.
-- [ ] Tres cards de opción: borde `border-xo-border`, al seleccionar `border-xo-fan-accent bg-xo-fan-accent/10 press-tactile`.
-- [ ] Textarea: `<textarea rows={3}>` con placeholder «Describe tu jugada en texto libre…». Mínimo 10 caracteres para activar «Confirmar».
-- [ ] Al confirmar: `api.challenge()` → `phase = 'animating'` → reproduce animación → `phase = 'verdict'`.
-- [ ] Veredicto: `.animate-panel-enter` con `EffectivenessBar` + texto de `verdict`.
-- [ ] Paso 5 completo: `phase = 'summary'` con resumen total y botón «Enviar al ranking».
-- [ ] Modal de nombre de usuario si `localStorage('xo_username')` está vacío.
-- [ ] `api.submitRanking()` → muestra nuevo ranking del usuario.
+- [x] Estado: `step` (0–4), `scores: number[]`, `selectedOption: string | null`, `freeText`, `simResult: ChallengeResponse | null`, `phase: 'select' | 'animating' | 'verdict' | 'summary'`.
+- [x] Indicador de progreso: 5 círculos. Activo: `bg-xo-fan-accent`. Completado: `bg-xo-success`. Pendiente: `bg-xo-border`.
+- [x] Pizarra: `TacticalBoard` en `readOnly=true` con la situación del escenario.
+- [x] Tres cards de opción: borde `border-xo-border`, al seleccionar `border-xo-fan-accent bg-xo-fan-accent/10 press-tactile`.
+- [x] Textarea: `<textarea rows={3}>` con placeholder «Describe tu jugada en texto libre…». Mínimo 10 caracteres para activar «Confirmar».
+- [x] Al confirmar: `api.challenge()` → `phase = 'animating'` → reproduce animación → `phase = 'verdict'`.
+- [x] Veredicto: `.animate-panel-enter` con `EffectivenessBar` + texto de `verdict`.
+- [x] Paso 5 completo: `phase = 'summary'` con resumen total y botón «Enviar al ranking».
+- [x] Modal de nombre de usuario si `localStorage('xo_username')` está vacío.
+- [x] `api.submitRanking()` → muestra nuevo ranking del usuario.
 
 ### T-54 `src/components/fan/Rankings.tsx`
 
-- [ ] `useEffect` inicial: `api.rankings({ limit: 20 })`.
-- [ ] Tabs «Liga de Aficiones» / «Top Jugadores» con estilo chip (mismo componente reutilizable de Navbar interno).
-- [ ] Tab «Liga de Aficiones»: `BarChart` horizontal + tabla con columnas definidas en RF-04.4.3.
-- [ ] Tab «Top Jugadores»: tabla con columnas definidas en RF-04.4.4.
-- [ ] Fila del usuario actual resaltada con `border border-xo-electric`.
-- [ ] Botón «Ver más» que incrementa `limit` y vuelve a llamar la API.
+- [x] `useEffect` inicial: `api.rankings({ limit: 20 })`.
+- [x] Tabs «Liga de Aficiones» / «Top Jugadores» con estilo chip (mismo componente reutilizable de Navbar interno).
+- [x] Tab «Liga de Aficiones»: `BarChart` horizontal + tabla con columnas definidas en RF-04.4.3.
+- [x] Tab «Top Jugadores»: tabla con columnas definidas en RF-04.4.4.
+- [x] Fila del usuario actual resaltada con `border border-xo-electric`.
+- [x] Botón «Ver más» que incrementa `limit` y vuelve a llamar la API.
 
 ### T-55 `src/components/fan/NflAcademy.tsx`
 
-- [ ] Tabs internos: «Anatomía del Juego», «Jugadas Básicas», «Diccionario».
-- [ ] **Anatomía del Juego:**
+- [x] Tabs internos: «Anatomía del Juego», «Jugadas Básicas», «Diccionario».
+- [x] **Anatomía del Juego:**
   - 4 cards en grid 2×2 con icono SVG inline, título y descripción:
     1. Los Cuartos — 4 períodos de 15 min.
     2. El Reloj — se detiene en incompletos y fuera de banda.
     3. Las 4 Oportunidades — debes avanzar 10 yardas o ceder el balón.
     4. Las Zonas del Campo — cancha, zona roja, end zone.
   - Sin llamada a API.
-- [ ] **Jugadas Básicas:**
+- [x] **Jugadas Básicas:**
   - Selector de jugada (3 opciones: «Slant Route», «Run Up the Middle», «Screen Pass»).
   - `TacticalBoard` en `readOnly=true` con frames hardcodeados del `BASIC_PLAYS` dict.
   - Al hacer hover o clic en la card de selección, la animación arranca automáticamente (`play()` del `useAnimation`).
   - `EffectivenessBar` en modo lectura con `effectiveness` del mock.
-- [ ] **Diccionario:**
+- [x] **Diccionario:**
   - Lista de al menos 10 términos. Cada ítem: nombre en `font-semibold` + definición en `text-xo-text-secondary`.
   - Al hacer clic en un término: llama `onDictionaryClick(term)` → prop que sube hasta `App.tsx` → se pasa como `preloadMessage` al `Copilot`.
 
@@ -327,43 +327,43 @@
 
 ### T-60 Conectar `suggestedPlayers` del Copilot con `TacticalBoard`
 
-- [ ] En `App.tsx`: estado `suggestedPlayers: PlayerInput[]` inicializado como `[]`.
-- [ ] `Copilot.onSuggestedPlayers` actualiza ese estado.
-- [ ] `CoachView` recibe `suggestedPlayers` y lo aplica en su `useEffect` de merge.
-- [ ] Solo aplica si `currentView === 'board'`; en otras vistas lo ignora silenciosamente.
+- [x] En `App.tsx`: estado `suggestedPlayers: PlayerInput[]` inicializado como `[]`.
+- [x] `Copilot.onSuggestedPlayers` actualiza ese estado.
+- [x] `CoachView` recibe `suggestedPlayers` y lo aplica en su `useEffect` de merge.
+- [x] Solo aplica si `currentView === 'board'`; en otras vistas lo ignora silenciosamente.
 
 ### T-61 Conectar `preloadMessage` del Diccionario con el Copilot
 
-- [ ] En `App.tsx`: estado `copilotPreload: string` inicializado como `''`.
-- [ ] `NflAcademy.onDictionaryClick(term)` → prop `onDictionaryTerm` → `App.tsx` actualiza `copilotPreload`.
-- [ ] `Copilot` recibe `preloadMessage={copilotPreload}`. Su `useEffect` lo consume y lo resetea a `''` tras abrirse.
+- [x] En `App.tsx`: estado `copilotPreload: string` inicializado como `''`.
+- [x] `NflAcademy.onDictionaryClick(term)` → prop `onDictionaryTerm` → `App.tsx` actualiza `copilotPreload`.
+- [x] `Copilot` recibe `preloadMessage={copilotPreload}`. Su `useEffect` lo consume y lo resetea a `''` tras abrirse.
 
 ### T-62 Manejo de errores y estados de carga
 
-- [ ] Componente `LoadingSkeleton.tsx`: placeholder de card con `animate-pulse bg-xo-elevated rounded-card`.
-- [ ] Componente `ErrorBanner.tsx`: banner `bg-xo-danger/15 border border-xo-danger/40 text-xo-danger` con mensaje y botón «Reintentar».
-- [ ] Todos los `useEffect` de llamadas API tienen `try/catch` que muestran `ErrorBanner` con el `detail` del error.
-- [ ] Los estados de carga muestran `LoadingSkeleton` en lugar de contenido vacío.
+- [x] Componente `LoadingSkeleton.tsx`: placeholder de card con `animate-pulse bg-xo-elevated rounded-card`.
+- [x] Componente `ErrorBanner.tsx`: banner `bg-xo-danger/15 border border-xo-danger/40 text-xo-danger` con mensaje y botón «Reintentar».
+- [x] Todos los `useEffect` de llamadas API tienen `try/catch` que muestran `ErrorBanner` con el `detail` del error.
+- [x] Los estados de carga muestran `LoadingSkeleton` en lugar de contenido vacío.
 
 ### T-63 Verificar rutas relativas
 
-- [ ] Buscar en todo `dashboard/src/` el patrón `fetch('/'` o `fetch("/"` o `localhost` o `127.0.0.1`.
-- [ ] Buscar en JSX el patrón `src="/"` o `href="/"` para assets.
-- [ ] Corregir cualquier instancia encontrada antes del commit.
+- [x] Buscar en todo `dashboard/src/` el patrón `fetch('/'` o `fetch("/"` o `localhost` o `127.0.0.1`.
+- [x] Buscar en JSX el patrón `src="/"` o `href="/"` para assets.
+- [x] Corregir cualquier instancia encontrada antes del commit.
 
 ### T-64 Responsividad mínima
 
-- [ ] Navbar: en `sm` (< 768 px) oculta el sidebar y muestra botón de menú hamburguesa SVG inline.
-- [ ] `TacticalBoard`: en `sm` ocupa 100% del ancho con aspect-ratio preservado (`aspect-[120/53.3]`).
-- [ ] Panel de efectividad: en `sm` se apila debajo de la pizarra (flex-col).
-- [ ] Tablas de rankings: en `sm` se convierten en lista de cards.
+- [x] Navbar: en `sm` (< 768 px) oculta el sidebar y muestra botón de menú hamburguesa SVG inline.
+- [x] `TacticalBoard`: en `sm` ocupa 100% del ancho con aspect-ratio preservado (`aspect-[120/53.3]`).
+- [x] Panel de efectividad: en `sm` se apila debajo de la pizarra (flex-col).
+- [x] Tablas de rankings: en `sm` se convierten en lista de cards.
 
 ### T-65 Build final y verificación TypeScript
 
-- [ ] `npm run build` dentro de `dashboard/` sin errores TypeScript (`strict: true` en `tsconfig.json`).
-- [ ] `tsconfig.json` tiene `"strict": true`, `"noUnusedLocals": true`, `"noUnusedParameters": true`.
-- [ ] El directorio `dashboard/dist/` generado contiene `index.html` y assets con rutas relativas.
-- [ ] Verificar que `dashboard/dist/index.html` carga los scripts con `src="assets/..."` (sin `/`).
+- [x] `npm run build` dentro de `dashboard/` sin errores TypeScript (`strict: true` en `tsconfig.json`).
+- [x] `tsconfig.json` tiene `"strict": true`, `"noUnusedLocals": true`, `"noUnusedParameters": true`.
+- [x] El directorio `dashboard/dist/` generado contiene `index.html` y assets con rutas relativas.
+- [x] Verificar que `dashboard/dist/index.html` carga los scripts con `src="assets/..."` (sin `/`).
 
 ---
 

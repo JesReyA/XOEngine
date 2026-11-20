@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NFL_TEAMS } from '../../constants/teams'
+import { useApiResource } from '../../hooks/useApiResource'
 import { api } from '../../services/api'
-import type { StatsResponse } from '../../types/api'
+import ErrorBanner from '../shared/ErrorBanner'
+import LoadingSkeleton from '../shared/LoadingSkeleton'
 import Select from '../shared/Select'
 import FunFacts from './FunFacts'
 import StatCard from './StatCard'
@@ -12,21 +14,18 @@ const TEAM_OPTIONS = [
   ...NFL_TEAMS.map((t) => ({ value: t.abbr, label: `${t.abbr} · ${t.name}` })),
 ]
 
-export default function StatsExplorer() {
+interface StatsExplorerProps {
+  onAsk: (text: string, autoSend?: boolean) => void
+}
+
+export default function StatsExplorer({ onAsk }: StatsExplorerProps) {
   const [team, setTeam] = useState('')
   const [query, setQuery] = useState('')
-  const [stats, setStats] = useState<StatsResponse | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    setStats(null)
-    api.stats(team ? { team } : undefined).then((s) => {
-      if (!cancelled) setStats(s)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [team])
+  const { data: stats, error, loading, reload } = useApiResource(
+    () => api.stats(team ? { team } : undefined),
+    [team],
+  )
+  const explain = (term: string) => () => onAsk(`¿Qué significa ${term} en la NFL? Explícalo para un principiante.`, true)
 
   const visible = useMemo(() => {
     if (!stats) return []
@@ -46,23 +45,29 @@ export default function StatsExplorer() {
         <Select label="Filtrar por equipo" value={team} options={TEAM_OPTIONS} onChange={setTeam} className="w-64" />
       </header>
 
-      {!stats ? (
-        <div className="grid gap-4 sm:grid-cols-3 animate-pulse" aria-busy="true">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-24 rounded-card bg-xo-elevated" />
-          ))}
-        </div>
-      ) : (
+      {error && <ErrorBanner message={error} onRetry={reload} />}
+      {(loading || !stats) && !error && <LoadingSkeleton count={3} className="h-24" />}
+
+      {stats && !loading && (
         <>
           <section aria-label="Promedios de liga" className="grid gap-4 sm:grid-cols-3">
-            <StatCard label="Velocidad promedio" value={stats.league_averages.avg_speed.toFixed(2)} unit="yd/s" />
-            <StatCard label="Separación promedio" value={stats.league_averages.avg_separation.toFixed(1)} unit="yd" />
-            <StatCard label="Aceleración promedio" value={stats.league_averages.avg_acceleration.toFixed(1)} unit="yd/s²" />
+            <StatCard label="Velocidad promedio" value={stats.league_averages.avg_speed.toFixed(2)} unit="yd/s" onExplain={explain('la velocidad promedio')} />
+            <StatCard label="Separación promedio" value={stats.league_averages.avg_separation.toFixed(1)} unit="yd" onExplain={explain('la separación promedio')} />
+            <StatCard label="Aceleración promedio" value={stats.league_averages.avg_acceleration.toFixed(1)} unit="yd/s²" onExplain={explain('la aceleración promedio')} />
           </section>
 
           <section aria-labelledby="top-speed-title" className="bg-xo-elevated border border-xo-border rounded-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <h2 id="top-speed-title" className="text-xl font-semibold">Top velocistas</h2>
+              <div>
+                <h2 id="top-speed-title" className="text-xl font-semibold">Top velocistas</h2>
+                <button
+                  type="button"
+                  onClick={explain('la velocidad punta')}
+                  className="text-xs text-xo-text-secondary hover:text-xo-fan-accent underline underline-offset-4 press-tactile"
+                >
+                  ¿Qué significa?
+                </button>
+              </div>
               <div>
                 <label className="sr-only" htmlFor="player-search">Buscar jugador</label>
                 <input
