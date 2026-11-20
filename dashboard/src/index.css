@@ -1,3 +1,136 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Curvas de animación ── */
+:root {
+  --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    background-color: #090b14;
+    color-scheme: dark;
+  }
+  body {
+    font-feature-settings:
+      "tnum" 1,
+      "cv11" 1;
+  }
+  :focus-visible {
+    outline: 2px solid #6038f5;
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgba(96, 56, 245, 0.45);
+    color: #f5f6fc;
+  }
+  input,
+  textarea {
+    caret-color: #8b6cff;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #232a42 transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #232a42;
+    border-radius: 9999px;
+  }
+}
+
+/* ── Clases de movimiento ── */
+.ease-apple {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.press-tactile {
+  transition:
+    transform 150ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+.press-tactile:active {
+  transform: scale(0.97);
+}
+
+/* ── Entrada de panel / tarjeta ── */
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-panel-enter {
+  animation: panelEnter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Copilot lateral ── */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in-right {
+  animation: slideInRight 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+.animate-slide-out-right {
+  animation: slideOutRight 200ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* ── Stagger ── */
+.stagger-1 {
+  animation-delay: 0ms;
+}
+.stagger-2 {
+  animation-delay: 35ms;
+}
+.stagger-3 {
+  animation-delay: 70ms;
+}
+.stagger-4 {
+  animation-delay: 105ms;
+}
+
+/* ── Ruta animada sobre la pizarra ── */
+.route-path {
+  transition: stroke-dashoffset 100ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
