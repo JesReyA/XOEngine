@@ -4,6 +4,7 @@ interface EffectivenessBarProps {
   effectiveness: Effectiveness | null
   isLoading: boolean
   baseline?: number // efectividad promedio de jugadas similares (0–1), opcional
+  similarPlays?: number // jugadas históricas similares encontradas
 }
 
 const R = 48
@@ -23,7 +24,12 @@ const IMPACT_BAR: Record<ImpactType, string> = {
 }
 const SIGN: Record<ImpactType, string> = { positive: '+', negative: '−', neutral: '' }
 
-export default function EffectivenessBar({ effectiveness, isLoading, baseline }: EffectivenessBarProps) {
+export default function EffectivenessBar({
+  effectiveness,
+  isLoading,
+  baseline,
+  similarPlays,
+}: EffectivenessBarProps) {
   if (isLoading) {
     return (
       <div className="bg-xo-elevated border border-xo-border rounded-card p-4 animate-pulse" aria-busy="true">
@@ -78,6 +84,12 @@ export default function EffectivenessBar({ effectiveness, isLoading, baseline }:
           </span>
         </div>
         <p className="mt-2 text-sm text-xo-text-primary">Probabilidad de éxito</p>
+        <p className="sr-only">Efectividad {effectiveness.label}</p>
+        {similarPlays !== undefined && (
+          <p className="text-xs text-xo-text-secondary">
+            Basado en <span className="font-mono font-bold text-xo-text-primary">{similarPlays}</span> jugadas históricas similares
+          </p>
+        )}
         {delta !== null && (
           <p className={`text-xs ${delta >= 0 ? 'text-xo-success' : 'text-xo-danger'}`}>
             {delta >= 0 ? '↑' : '↓'}
@@ -92,10 +104,14 @@ export default function EffectivenessBar({ effectiveness, isLoading, baseline }:
         {sorted.map((f) => (
           <li key={f.name}>
             <div className="flex items-baseline justify-between gap-3 text-xs">
-              <span className="text-xo-text-secondary">{f.name}</span>
+              <span className="text-xo-text-secondary">
+                {f.name}
+                <span className="ml-1.5 font-mono text-xo-text-muted">{Math.round(f.weight * 100)}%</span>
+              </span>
               <span className={`font-mono font-bold ${IMPACT_TEXT[f.impact]}`}>
                 {SIGN[f.impact]}
                 {f.value.toFixed(1)}
+                <span className="sr-only"> impacto {f.impact}</span>
               </span>
             </div>
             <div className="mt-1 h-1.5 rounded-pill bg-xo-border overflow-hidden">

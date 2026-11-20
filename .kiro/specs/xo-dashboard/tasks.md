@@ -188,26 +188,26 @@
 
 ### T-30 `src/components/shared/EffectivenessBar.tsx`
 
-- [ ] Props: `effectiveness: Effectiveness | null`, `isLoading: boolean`.
-- [ ] Arco SVG circular: `r=48`, `strokeWidth=12`, `stroke-dasharray` y `stroke-dashoffset` animados en 500 ms con `--ease-apple`.
-- [ ] Color del arco: `>0.70` → `#10B981` | `0.40–0.70` → `#F59E0B` | `<0.40` → `#D50A0A`.
-- [ ] Texto central: `{Math.round(score * 100)}%` en `font-mono text-2xl font-bold`.
-- [ ] Subtexto: «Probabilidad de éxito» + delta vs. promedio `↑+12% vs. promedio`.
-- [ ] Barras de factores: lista ordenada por `weight` desc. Cada fila: label + barra + valor.
-- [ ] Estado `isLoading`: muestra skeleton con `animate-pulse` sobre el arco y barras.
+- [x] Props: `effectiveness: Effectiveness | null`, `isLoading: boolean`.
+- [x] Arco SVG circular: `r=48`, `strokeWidth=12`, `stroke-dasharray` y `stroke-dashoffset` animados en 500 ms con `--ease-apple`.
+- [x] Color del arco: `>0.70` → `#10B981` | `0.40–0.70` → `#F59E0B` | `<0.40` → `#D50A0A`.
+- [x] Texto central: `{Math.round(score * 100)}%` en `font-mono text-2xl font-bold`.
+- [x] Subtexto: «Probabilidad de éxito» + delta vs. promedio `↑+12% vs. promedio`.
+- [x] Barras de factores: lista ordenada por `weight` desc. Cada fila: label + barra + valor.
+- [x] Estado `isLoading`: muestra skeleton con `animate-pulse` sobre el arco y barras.
 
 ### T-31 `src/components/shared/Copilot.tsx`
 
-- [ ] Props: `mode`, `currentView`, `onNavigate`, `onSuggestedPlayers`, `preloadMessage?: string`.
-- [ ] Estado: `isOpen`, `messages: Array<{role, content}>`, `input`, `isLoading`.
-- [ ] Botón flotante: `fixed bottom-6 right-6 z-50 w-12 h-12 bg-xo-electric rounded-pill shadow-lg press-tactile`.
-- [ ] Panel: `fixed right-0 top-0 h-screen w-80 bg-xo-elevated/95 backdrop-blur-sm border-l border-xo-border z-40`.
+- [x] Props: `mode`, `currentView`, `onNavigate`, `onSuggestedPlayers`, `preloadMessage?: string`.
+- [x] Estado: `isOpen`, `messages: Array<{role, content}>`, `input`, `isLoading`.
+- [x] Botón flotante: `fixed bottom-6 right-6 z-50 w-12 h-12 bg-xo-electric rounded-pill shadow-lg press-tactile`.
+- [x] Panel: `fixed right-0 top-0 h-screen w-80 bg-xo-elevated/95 backdrop-blur-sm border-l border-xo-border z-40`.
   - Apertura: clase `.animate-slide-in-right`.
   - Cierre: clase `.animate-slide-out-right` → `onAnimationEnd` → `isOpen = false`.
-- [ ] Historial de mensajes: scroll al fondo en cada nuevo mensaje (`useEffect` + `scrollIntoView`).
-- [ ] Al recibir respuesta: procesar `navigate_to` → `onNavigate`, `suggested_players` → `onSuggestedPlayers`.
-- [ ] Badge «Modo heurístico»: `text-xo-warning text-xs` si `ai_available === false`.
-- [ ] `useEffect` que observe `preloadMessage`: si cambia y es no vacío, pre-rellena `input` y abre el panel.
+- [x] Historial de mensajes: scroll al fondo en cada nuevo mensaje (`useEffect` + `scrollIntoView`).
+- [x] Al recibir respuesta: procesar `navigate_to` → `onNavigate`, `suggested_players` → `onSuggestedPlayers`.
+- [x] Badge «Modo heurístico»: `text-xo-warning text-xs` si `ai_available === false`.
+- [x] `useEffect` que observe `preloadMessage`: si cambia y es no vacío, pre-rellena `input` y abre el panel.
 
 ---
 
@@ -215,38 +215,38 @@
 
 ### T-40 `src/components/coach/CoachView.tsx`
 
-- [ ] Props: `currentView: 'board' | 'scouting'`, `onNavigate`, `suggestedPlayers`.
-- [ ] Layout: `<MainLayout>` con renderizado condicional por `currentView`.
-- [ ] Vista `board`: panel dividido 65% / 32% con gap.
-- [ ] Vista `scouting`: ancho completo con `ScoutingPanel`.
-- [ ] Estado local: `players: PlayerInput[]`, `gameContext`, `simResult: SimulateResponse | null`, `isSimulating`.
-- [ ] `useEffect` que observe `suggestedPlayers` del copiloto: si tiene elementos, mergea con `players` actualizando `x`, `y` y `route` de las fichas coincidentes por `player_id`.
+- [x] Props: `currentView: 'board' | 'scouting'`, `onNavigate`, `suggestedPlayers`.
+- [x] Layout: `<MainLayout>` con renderizado condicional por `currentView`.
+- [x] Vista `board`: panel dividido 65% / 32% con gap.
+- [x] Vista `scouting`: ancho completo con `ScoutingPanel`.
+- [x] Estado local: `players: PlayerInput[]`, `gameContext`, `simResult: SimulateResponse | null`, `isSimulating`.
+- [x] `useEffect` que observe `suggestedPlayers` del copiloto: si tiene elementos, mergea con `players` actualizando `x`, `y` y `route` de las fichas coincidentes por `player_id`.
 
 ### T-41 `src/components/coach/ControlBar.tsx`
 
-- [ ] Props: `offenseTeam`, `defenseTeam`, `down`, `yardsToGo`, `fieldZone`, `isLoading`, `onChange*`, `onSimulate`.
-- [ ] Dos dropdowns de equipo (32 equipos NFL hardcodeados en constante).
-- [ ] Dropdown de down (`1st`–`4th`).
-- [ ] Dropdown de yardas (`1`–`25+`).
-- [ ] Dropdown de zona (`Own 1`–`Own 49`, `Midfield`, `Opp 49`–`Opp 1`).
-- [ ] Botón «Simular ▶»: `bg-xo-electric rounded-chip press-tactile` + spinner SVG cuando `isLoading`.
+- [x] Props: `offenseTeam`, `defenseTeam`, `down`, `yardsToGo`, `fieldZone`, `isLoading`, `onChange*`, `onSimulate`.
+- [x] Dos dropdowns de equipo (32 equipos NFL hardcodeados en constante).
+- [x] Dropdown de down (`1st`–`4th`).
+- [x] Dropdown de yardas (`1`–`25+`).
+- [x] Dropdown de zona (`Own 1`–`Own 49`, `Midfield`, `Opp 49`–`Opp 1`).
+- [x] Botón «Simular ▶»: `bg-xo-electric rounded-chip press-tactile` + spinner SVG cuando `isLoading`.
 
 ### T-42 `src/components/coach/RecentPlaysTable.tsx`
 
-- [ ] Props: `plays: Array<{name, result, effectiveness, time}>`.
-- [ ] Tabla con columnas: Jugada, Resultado (badge Éxito/Fracaso), Efectividad (%), Tiempo, Acción (▶ reproducir).
-- [ ] Badge Éxito: `bg-xo-success/15 text-xo-success`. Badge Fracaso: `bg-xo-danger/15 text-xo-danger`.
-- [ ] Fila del hover: `bg-xo-elevated/50 press-tactile` sin animar layout.
+- [x] Props: `plays: Array<{name, result, effectiveness, time}>`.
+- [x] Tabla con columnas: Jugada, Resultado (badge Éxito/Fracaso), Efectividad (%), Tiempo, Acción (▶ reproducir).
+- [x] Badge Éxito: `bg-xo-success/15 text-xo-success`. Badge Fracaso: `bg-xo-danger/15 text-xo-danger`.
+- [x] Fila del hover: `bg-xo-elevated/50 press-tactile` sin animar layout.
 
 ### T-43 `src/components/coach/ScoutingPanel.tsx`
 
-- [ ] Props: `team: string`, `opponent: string | null`.
-- [ ] Selector de equipo rival en la parte superior.
-- [ ] `useEffect` que llame `api.scouting({ team, opponent })` al cambiar equipo.
-- [ ] Sección de perfil de equipo: stats clave en 3 cards + `RadarChart` de Recharts con distribución de coberturas.
-- [ ] Lista de alertas críticas: cards con `animate-panel-enter` y stagger 35 ms.
+- [x] Props: `team: string`, `opponent: string | null`.
+- [x] Selector de equipo rival en la parte superior.
+- [x] `useEffect` que llame `api.scouting({ team, opponent })` al cambiar equipo.
+- [x] Sección de perfil de equipo: stats clave en 3 cards + `RadarChart` de Recharts con distribución de coberturas.
+- [x] Lista de alertas críticas: cards con `animate-panel-enter` y stagger 35 ms.
   - Cada alerta: `IconAlert` + badge de severidad + mensaje + barra de percentil animada.
-- [ ] Estado vacío: texto «Selecciona un rival para ver su scouting» centrado.
+- [x] Estado vacío: texto «Selecciona un rival para ver su scouting» centrado.
 
 ---
 
