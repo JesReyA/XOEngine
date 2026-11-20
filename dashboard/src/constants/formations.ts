@@ -113,9 +113,25 @@ export const FIELD_ZONE_OPTIONS: Array<{ value: string; label: string }> = [
   })),
 ]
 
+// El backend solo acepta estas 5 zonas (sim_engine/data_engine.FIELD_ZONE_CODES).
+const API_ZONES = ['own_territory', 'midfield', 'opponent_territory', 'red_zone', 'goal_line']
+
+export function toApiFieldZone(zone: string): string {
+  if (API_ZONES.includes(zone)) return zone
+  const toGoal = 110 - fieldZoneToX(zone) // yardas hasta la zona de anotación rival
+  if (toGoal <= 2) return 'goal_line'
+  if (toGoal <= 20) return 'red_zone'
+  if (toGoal <= 40) return 'opponent_territory'
+  if (toGoal <= 60) return 'midfield'
+  return 'own_territory'
+}
+
 export function fieldZoneToX(zone: string): number {
   if (zone === 'midfield') return 60
   if (zone === 'red_zone') return 95
+  if (zone === 'goal_line') return 108
+  if (zone === 'opponent_territory') return 80
+  if (zone === 'own_territory') return 25
   const [side, n] = zone.split('_')
   const yd = Number(n)
   if (Number.isNaN(yd)) return 35

@@ -168,11 +168,12 @@ export interface TeamResponse {
     red_zone_efficiency: number
     favorite_formation: string
   }
+  // null cuando el equipo no tiene más partidos en el calendario
   next_opponent: {
     team_abbr: string
     week: number
     tendencies: string[]
-  }
+  } | null
 }
 
 // ── Scouting ──
@@ -202,6 +203,7 @@ export interface ScoutingResponse {
       effectiveness_by_formation: Record<string, number>
     }
   } | null
+  // null cuando la consulta no incluye team
   team_profile: {
     team: string
     avg_play_speed: number
@@ -209,7 +211,7 @@ export interface ScoutingResponse {
     third_down_blitz_rate: number
     // El backend devuelve también cover_0, cover_6, red_zone, 2_man, etc.
     coverage_distribution: Record<string, number>
-  }
+  } | null
   critical_alerts: ScoutingAlert[]
 }
 

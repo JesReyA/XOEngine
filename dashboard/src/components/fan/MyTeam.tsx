@@ -100,17 +100,23 @@ export default function MyTeam() {
           </section>
 
           <section className="bg-xo-elevated border border-xo-border rounded-card p-4 md:col-span-2" aria-labelledby="next-title">
-            <h2 id="next-title" className="text-lg font-semibold">
-              Próximo rival: {data.next_opponent.team_abbr}
-              <span className="ml-2 text-sm font-normal text-xo-text-secondary">Semana {data.next_opponent.week}</span>
-            </h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {data.next_opponent.tendencies.map((t) => (
-                <span key={t} className={`text-xs font-medium px-2 py-0.5 rounded-pill ${TENDENCY_STYLE[t] ?? 'bg-xo-border text-xo-text-secondary'}`}>
-                  {tendencyLabel(t)}
-                </span>
-              ))}
-            </div>
+            {data.next_opponent ? (
+              <>
+                <h2 id="next-title" className="text-lg font-semibold">
+                  Próximo rival: {data.next_opponent.team_abbr}
+                  <span className="ml-2 text-sm font-normal text-xo-text-secondary">Semana {data.next_opponent.week}</span>
+                </h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {data.next_opponent.tendencies.map((t) => (
+                    <span key={t} className={`text-xs font-medium px-2 py-0.5 rounded-pill ${TENDENCY_STYLE[t] ?? 'bg-xo-border text-xo-text-secondary'}`}>
+                      {tendencyLabel(t)}
+                    </span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <h2 id="next-title" className="text-lg font-semibold">Sin próximo rival en el calendario</h2>
+            )}
           </section>
         </div>
       )}
